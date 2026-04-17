@@ -4,9 +4,9 @@ Branch: environment-setup
 Setup Env: 
 [2026/04/16] 1. python and node.js already installed
 [2026/04/16] 2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
-3. python venv for pandas pipeline
+[2026/04/16] 3. python venv for pandas pipeline
 4. install pandas pipeline dependencies
-5. gitignore sensitive files and venv
+[2026/04/16] 5. gitignore sensitive files and venv
 
 Get data just for pandas pipeline
 6. Kaggle (actually I can just download the datasets)

@@ -1,8 +1,21 @@
-# # Godot 4+ specific ignores
-# .godot/
-# .nomedia
+# Python
+venv/
+pipelinevenv/
+__pycache__/
+*.pyc
+.env
 
-# # Godot-specific ignores
-# .import/
-# export.cfg
-# export_credentials.cfg
+# Data files
+data/raw/
+data/processed/
+*.parquet
+*.csv
+# since raw data and artifacts shouldn't be published to github
+
+# Build artifacts
+dist/
+node_modules/
+
+# IDE
+.DS_Store
+.vscode/
