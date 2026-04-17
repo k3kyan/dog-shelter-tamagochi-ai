@@ -4,6 +4,10 @@ pipelinevenv/
 __pycache__/
 *.pyc
 .env
+# to recreate venv:
+# python -m venv pipelinevenv
+# pipelinevenv\Scripts\activate
+# pip install requirements.txt
 
 # Data files
 data/raw/
@@ -11,6 +15,7 @@ data/processed/
 *.parquet
 *.csv
 # since raw data and artifacts shouldn't be published to github
+# got data from kaggle.com
 
 # Build artifacts
 dist/

@@ -5,11 +5,19 @@ Setup Env:
 [2026/04/16] 1. python and node.js already installed
 [2026/04/16] 2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
 [2026/04/16] 3. python venv for pandas pipeline
-4. install pandas pipeline dependencies
 [2026/04/16] 5. gitignore sensitive files and venv
+[2026/04/16] 4. install pandas pipeline dependencies
+# pip install pandas scikit-learn thefuzz pyarrow matplotlib seaborn jupyter
+Data Cleaning (core of this project): pandas thefuzz pyarrow
+KMeans ML stuff: scikit-learn matplotlib
+Learning + nice to have: seaborn jupyter
+# NOTE jupyter FAILED TO INSTALL bc its too long so i'll install it if i need it 
 
 Get data just for pandas pipeline
 6. Kaggle (actually I can just download the datasets)
+    https://www.kaggle.com/datasets/mexwell/dog-breeds-dataset
+    https://www.kaggle.com/datasets/mexwell/dog-breeds-dogtime-dataset
+    https://www.kaggle.com/datasets/aaronschlegel/austin-animal-center-shelter-intakes-and-outcomes
 7. download the 3 datasets
 8. gitignore the 3 datasets
 
@@ -23,6 +31,7 @@ Data Cleaning and Transformation
 12. clean akc data: breed + personalities figure out how to extract 
 13. clean dogtime data: breed + grooming/health
 14. figure out how to join the datasets.....
+    pip install jupyter ...?
 15. KMeans Clustering (ML practice): personality archetypes (may or may not keep in project)
 
 Pandas Pipeline Testing Local
@@ -32,6 +41,7 @@ Pandas Pipeline Testing Local
 Branch: backend-fastAPI-endpoints-and-trustsystem
 xx. create app directory for backend (call it api, prob more professional?)
 xx. venv + dependencies
+    pip install python-dotenv fastapi uvicorn mangum langchain langchain-groq 
 xx. groq api sign up
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
     (maybe if trust system is too complicated, just keep the personality part?)
