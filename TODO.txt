@@ -2,14 +2,14 @@
 
 Branch: environment-setup
 Setup Env: 
-1. python and node.js already installed
-2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
+[2026/04/16] 1. python and node.js already installed
+[2026/04/16] 2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
 3. python venv for pandas pipeline
 4. install pandas pipeline dependencies
 5. gitignore sensitive files and venv
 
-Get API's just for pandas pipeline env
-6. Kaggle
+Get data just for pandas pipeline
+6. Kaggle (actually I can just download the datasets)
 7. download the 3 datasets
 8. gitignore the 3 datasets
 
@@ -30,6 +30,7 @@ Pandas Pipeline Testing Local
 
 
 Branch: backend-fastAPI-endpoints-and-trustsystem
+xx. create app directory for backend (call it api, prob more professional?)
 xx. venv + dependencies
 xx. groq api sign up
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
@@ -42,9 +43,11 @@ Branch: merge to main and test backend+data
 xx. test out the backend with swaggerui or something
 
 Branch: react frontend
+xx. create app directory for frontend 
 Branch: merge to main and test fullstack
 
 Branch: aws setup 
+xx. create app directory for cicd aws
 xx. cloudformation
 xx. aws setup 
 xx. ci/cd pipeline with GitHub
