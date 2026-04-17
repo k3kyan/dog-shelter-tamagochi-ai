@@ -17,3 +17,10 @@ Tech I'm familiar with (used in previous projects):
     - FastAPI + Mangum
     - AWS Lambda, CloudFormation, CodePipeline + GitHub, S3, CloudFront, IAM
     - React
+
+
+# Project About
+- get data about dog breeds
+- make it into a tamagochi
+- shelter data is for data engineering practice but also adds backstory to dogs
+- practice ai with langchain to interact with dogs
