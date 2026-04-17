@@ -10,10 +10,10 @@ __pycache__/
 # pip install requirements.txt
 
 # Data files
-data/raw/
+# data/raw/ no actually for this project i wanna have the datasets shown, plus theyre public data anyways
 data/processed/
 *.parquet
-*.csv
+# *.csv
 # since raw data and artifacts shouldn't be published to github
 # got data from kaggle.com
 

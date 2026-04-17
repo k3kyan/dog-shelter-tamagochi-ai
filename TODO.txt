@@ -45,6 +45,7 @@ xx. venv + dependencies
 xx. groq api sign up
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
     (maybe if trust system is too complicated, just keep the personality part?)
+xx. (additional feature?? player lifestyle??? to match up with dogtime dataset traits, which are cool)
 
 Branch: backend-langchain-dog-personality
 xx. figure out how to show personality of dogs and incorporate trust layer (friendliness, habits, etc)
