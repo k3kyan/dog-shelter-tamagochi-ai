@@ -2,9 +2,9 @@
 
 ## Tools
 Kaggle: datasets
-    - AKC Dog Breeds: dog breed behaviors and personalities
-    - DogTime Dataset: dog breed grooming 
-    - austin animal shelter dataset: more just using to practice data engineering bc it has 80k lines of data while the other two have less than 400 lines
+    - AKC Dog Breeds: dog breed behaviors and personalities (unlocks as trust grows)
+    - DogTime Dataset: dog breed lifestyle  (applies from day 1)
+    - austin animal shelter dataset: more just using to practice data engineering bc it has 80k lines of data while the other two have less than 400 lines (used for starting trust score of dog)
 
 New Tech/Concepts:
     - scikit-learn KMeans
@@ -24,3 +24,6 @@ Tech I'm familiar with (used in previous projects):
 - make it into a tamagochi
 - shelter data is for data engineering practice but also adds backstory to dogs
 - practice ai with langchain to interact with dogs
+
+
+- maybe can be used to practice taking care of a dog too in the future? if i make drawings etc

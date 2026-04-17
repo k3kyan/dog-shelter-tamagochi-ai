@@ -1,8 +1,26 @@
-# # Godot 4+ specific ignores
-# .godot/
-# .nomedia
+# Python
+venv/
+pipelinevenv/
+__pycache__/
+*.pyc
+.env
+# to recreate venv:
+# python -m venv pipelinevenv
+# pipelinevenv\Scripts\activate
+# pip install requirements.txt
 
-# # Godot-specific ignores
-# .import/
-# export.cfg
-# export_credentials.cfg
+# Data files
+# data/raw/ no actually for this project i wanna have the datasets shown, plus theyre public data anyways
+data/processed/
+*.parquet
+# *.csv
+# since raw data and artifacts shouldn't be published to github
+# got data from kaggle.com
+
+# Build artifacts
+dist/
+node_modules/
+
+# IDE
+.DS_Store
+.vscode/
