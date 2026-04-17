@@ -3,7 +3,7 @@
 ## Tools
 Kaggle: datasets
     - AKC Dog Breeds: dog breed behaviors and personalities (unlocks as trust grows)
-    - DogTime Dataset: dog breed grooming  (applies from day 1)
+    - DogTime Dataset: dog breed lifestyle  (applies from day 1)
     - austin animal shelter dataset: more just using to practice data engineering bc it has 80k lines of data while the other two have less than 400 lines (used for starting trust score of dog)
 
 New Tech/Concepts:
