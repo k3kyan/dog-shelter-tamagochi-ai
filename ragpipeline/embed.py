@@ -2,7 +2,14 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_groq import ChatGroq
+import time # wait between calls to stay under the Groq limit (30 requests/minute on llama 3 8B)
 
+# Initialize Groq LLM for context generation
+llm = ChatGroq(
+    model='llama3-8b-8192', #fast and free model, context generation is simple so dont need large model
+    api_key=os.getenv('GROQ_API_KEY'),
+)
 
 # 1. load article text files
 def load_articles(dirpath: str) -> list[str]:
@@ -38,6 +45,7 @@ def load_articles(dirpath: str) -> list[str]:
 
 
 # 2. Chunk with recursive character text splitter
+# + generate context with groq to embed
 def chunk(articles: list[str]):
     # Text splitter, since the articles are too long to embed whole. splitting into focused chunks means retrieval returns relevant pieces, not entire articles
     # RecursiveCharacterTextSplitter tries paragraph breaks first, then sentences, then words
@@ -52,23 +60,68 @@ def chunk(articles: list[str]):
     for article in articles:
         chunks = splitter.split_text(article['text']) #splits the article's 'text' field into a list of chunks of 500 chars
         for chunk in chunks: # add the chunks to raw_chunks list, still keeping the other metadata for better context
+            
+            # generate context for each chunk
+            context = generate_context(article['text'], chunk)
+
+            # prepend context to chunk text before embedding #TODO: change this implementation??
+            # Note: need to combine context+chunk as one string because sentence-transformers only embeds one piece of text per entry (aka it cant embed 2 separate fields)
+            if context:
+                contextualized_text = f"{context}\n\n{chunk}"
+            else:
+                contextualized_text = chunk   # fallback if Groq fails
+            
+            # append chunks for embedding
             raw_chunks.append({
-                'text': chunk,
-                'source_url': article['url'], 
-                'full_article': article['text']  # keep for context generation for generate_context() for Groq (dont need to store permanently in chunk data or pass it to ChromaDB)
+                'text': contextualized_text, # the contextualized text for embedding #TODO: change this implementation??
+                'chunk': chunk, #stored as metadata in ChromaDB for debugging retrieval quality. does not get embedded
+                'context': context, #stored as metadata in ChromaDB for debugging retrieval quality. does not get embedded
+                'source_url': article['url'] #stored as metadata for display
             })
+
+            time.sleep(2)   # stay under Groq's 30 req/min rate limit
     
     print(f"Total raw chunks: {len(raw_chunks)}")
 
-    # looking at chunks to check and make sure theyre valid
+    # Check: looking at chunks to check and make sure theyre valid
     for chunk in raw_chunks[:3]:
         print(f"Checking random chunk: {chunk['filename']} \nChunk Len: ({len(chunk['text'])} chars)")
         print(chunk['text'][:100])
 
+    # TODO: Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
+
     return None
 
 
-# 3. Contextrual Retrieval
+
+# 3. Contextrual Retrieval (generated as each chunk is processed above)
+def generate_context(full_article: str, chunk: str) -> str:
+    """
+    Takes full article (context) and a chunk from it
+    Generates a short context sentence using Groq
+    Returns a 1-2 sentence context description of the chunk
+    """
+
+    prompt = f"""You are helping build a RAG system for dog care information. Given this article excerpt and a specific chunk from it, write 1-2 sentences describing what the chunk is about and where it fits in the article.
+    Be specific: mention the breed if relevant and the topic.
+    Keep it under 100 words. Output ONLY the context sentence, nothing else.
+
+    Full Article: {full_article}
+
+    Chunk to contextualize: {chunk}
+
+    Context sentence:
+    """
+    #the "Context sentence:" being left at the end of the prompt string is a prompting technique called a "completion prompt". Also prevents it from giving unecessary conversational text like "Sure! here u go" so u go straight to the content u want
+
+    try:
+        response = llm.invoke(prompt)
+        context = response.content.strip() #in case theres whitespace before/after string, since llm's frequently return texts with trailing whitespace
+        return context
+    except Exception as e:
+        print(f"Context generation failed: {e}")
+        return ''
+    
 
 # 4. Embed and store in ChromaDB
 
