@@ -46,11 +46,19 @@ shelter_stats['avg_days_in_shelter'] = shelter_stats['avg_days_in_shelter'].roun
 max_days = shelter_stats['avg_days_in_shelter'].max() #get highest number of average days just so i have a scale for the trust bar
 normalized_ave_days = shelter_stats['avg_days_in_shelter'] / max_days # Normalize avg_days to 0-1 range
 
+logging.info(f"normalized_ave_days: {normalized_ave_days} days")
+logging.info(f"normalized_ave_days.max(): {normalized_ave_days.max()} days")
+logging.info(f"max_days.max(): {max_days.max()} days")
+
 max_starting_trust = 70 # max_starting_trust is 70 bc most dogs will be not 100% trusting on first meeting
 
-shelter_stats['starting_trust'] = ((100 - (normalized_ave_days * max_starting_trust)) # shelter_stats['avg_days_in_shelter'] / max_days : gives value between 0 to 1, with 0 is shortest stay and 1 is longest
+# TODO: ok this math is wrong but ig thats a later problem idk, the logs look right
+shelter_stats['starting_trust'] = ((max_starting_trust - (normalized_ave_days * (max_starting_trust - 10))) # shelter_stats['avg_days_in_shelter'] / max_days : gives value between 0 to 1, with 0 is shortest stay and 1 is longest
                                    .round(1) # round so not a ton of decimals
                                 ) # add new column for breed's starting trust value
+
+logging.info(f"starting_trust: {(normalized_ave_days * (max_starting_trust-5))} trust")
+logging.info(f"starting_trust: {shelter_stats['starting_trust']} trust")
 # calculates starting trust by getting value of ave trust into value from 0 to 1 to get a value from the range of max_starting_trust, then making it a portion of 100
 # the higher the amount of days, the higher the withdrawn is, = -100 is val of starting trust 
 # 100 is the 100% trust, so subtracting it by the other stuff gives u the starting trust value
@@ -88,6 +96,8 @@ akc = akc.dropna(subset=[
     'trainability_value',
     'demeanor_value',
     'grooming_frequency_value',
+    'min_expectancy',
+    'max_expectancy',
     'shedding_value']) #drops any rows(breeds) that are missing any of these columns (bc these columns are important)
                     # need to drop bc any null values will mess with calculations or ML models (which i'll do later). i drop these since these are VALUES
                     # .dropna() instead of .drop() bc .dropna() removes NaN's where .drop() would remove specific strings
