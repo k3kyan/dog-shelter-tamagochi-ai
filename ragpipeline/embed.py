@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_groq import ChatGroq
 import time # wait between calls to stay under the Groq limit (30 requests/minute on llama 3 8B)
+import json
+
 
 # Initialize Groq LLM for context generation
 llm = ChatGroq(
@@ -80,7 +82,12 @@ def chunk(articles: list[str]):
         print(f"Checking random chunk: {chunk['filename']} \nChunk Len: ({len(chunk['text'])} chars)")
         print(chunk['text'][:100])
 
-    # TODO: Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
+    # Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
+    os.makedirs('data', exist_ok=True)
+    with open('data/contextualized_chunks.json', 'w') as f:
+        json.dump(raw_chunks, f, indent=2)
+    print("Saved contextualized_chunks.json")
+
 
     return None
 
