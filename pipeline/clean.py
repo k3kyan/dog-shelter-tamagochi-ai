@@ -5,6 +5,7 @@ logging.basicConfig(level=logging.INFO)
 # --- CLEANING AUSTIN SHELTER DATASET (bc its hardest and biggest) ---
 
 # 1. Load and filter dogs only
+# USE: time_in_shelter_days pre-calculated → avg per breed → starting_trust
 austin = pd.read_csv('data/raw/aac_intakes_outcomes.csv')
 dogs = (
         austin[
@@ -47,7 +48,6 @@ normalized_ave_days = shelter_stats['avg_days_in_shelter'] / max_days # Normaliz
 max_starting_trust = 70 # max_starting_trust is 70 bc most dogs will be not 100% trusting on first meeting
 
 shelter_stats['starting_trust'] = ((100 - (normalized_ave_days * max_starting_trust)) # shelter_stats['avg_days_in_shelter'] / max_days : gives value between 0 to 1, with 0 is shortest stay and 1 is longest
-                                   .clip(5, max_starting_trust-5)
                                    .round(1) # round so not a ton of decimals
                                 ) # add new column for breed's starting trust value
 # calculates starting trust by getting value of ave trust into value from 0 to 1 to get a value from the range of max_starting_trust, then making it a portion of 100
@@ -58,16 +58,101 @@ shelter_stats['starting_trust'] = ((100 - (normalized_ave_days * max_starting_tr
 
 
 # --- CLEANING AKC ---
+# USE: energy, trainability, demeanor, grooming, shedding scores --> KMeans clustering + LangChain trust-aware prompts
+
 # 1. Load and normalize breed names
+akc = pd.read_csv('data/raw/akc-data-latest.csv', index_col=0) #have to load index column 0 bc breed column doesnt have a name for some reason??
+akc.index.name = 'breed' # the first column we set as index with index_col=0, we are renaming it to "breed"
+akc = akc.reset_index() #turns index from breed(index) to just breed (bc it was weird before) aka a regular column and not an index (easier for merging/joining datasets later)
+akc['breed'] = akc['breed'].str.upper().str.strip() # normalize breed names in case of irregular capitalization and leading/trailing whitespace
+
 # 2. Filter only necessary columns
-# 3. Handle nulls
+akc = akc[[
+    'breed',
+    'description',
+    'temperament',
+    'group',
+    'min_expectancy',
+    'max_expectancy',
+    'grooming_frequency_value',
+    'shedding_value',
+    'energy_level_value',
+    'trainability_value',
+    'demeanor_value']]
+
+
+# 3. Handle nulls 
+akc = akc.dropna(subset=[
+    'energy_level_value',
+    'trainability_value',
+    'demeanor_value',
+    'grooming_frequency_value',
+    'shedding_value']) #drops any rows(breeds) that are missing any of these columns (bc these columns are important)
+                    # need to drop bc any null values will mess with calculations or ML models (which i'll do later). i drop these since these are VALUES
+                    # .dropna() instead of .drop() bc .dropna() removes NaN's where .drop() would remove specific strings
+akc['description'] = akc['description'].fillna('') # fill missing descriptions with empty strings, since these texts are not used in calculations but also shouldnt be null/NaN, so no string operations failing
+akc['temperament'] = akc['temperament'].fillna('') 
+
+
 
 # --- CLEANING DOGTIME ---
+# USE: adopter profile matching (a1-a6) + trust multiplier (b1, b4) + game mechanic drain rates (c1-c5, d5, e1, e3, e4)
+
 # 1. Load and normalize breed names
+dogtime = pd.read_csv('data/raw/breeds.csv')
+dogtime['breed'] = dogtime['breed'].str.upper().str.strip() #normalize
+
 # 2. Filter only necessary columns
+dogtime = dogtime.drop(columns=['url']) #drop url column
+dogtime = dogtime[[
+          'breed',
+          # adopter profile matching (lowkey will i use all of these?? kinda overcomplicated.. good for resume ig maybe..?)
+          'a1_adapts_well_to_apartment_living',
+          'a2_good_for_novice_owners',
+          'a3_sensitivity_level',
+          'a4_tolerates_being_alone',
+          'a5_tolerates_cold_weather',
+          'a6_tolerates_hot_weather',
+          # trust multiplier
+          'b1_affectionate_with_family',
+          'b4_friendly_toward_strangers',
+          # game mechanics
+          'c1_amount_of_shedding',
+          'c2_drooling_potential',
+          'c3_easy_to_groom',
+          'c4_general_health',
+          'c5_potential_for_weight_gain',
+          'd5_tendency_to_bark_or_howl',
+          'e1_energy_level',
+          'e3_exercise_needs',
+          'e4_potential_for_playfulness',
+      ]]
+
+
 # 3. Rename columns bc the columns here are awful
+dogtime = dogtime.rename(columns={
+          'a1_adapts_well_to_apartment_living': 'apartment_friendly',
+          'a2_good_for_novice_owners':          'novice_owner_friendly',
+          'a3_sensitivity_level':               'sensitivity',
+          'a4_tolerates_being_alone':           'tolerates_alone',
+          'a5_tolerates_cold_weather':          'tolerates_cold',
+          'a6_tolerates_hot_weather':           'tolerates_hot',
+          'b1_affectionate_with_family':        'affectionate',
+          'b4_friendly_toward_strangers':       'stranger_friendly',
+          'c1_amount_of_shedding':              'shedding_dt',
+          'c2_drooling_potential':              'drooling',
+          'c3_easy_to_groom':                   'grooming_ease',
+          'c4_general_health':                  'general_health',
+          'c5_potential_for_weight_gain':       'weight_gain_risk',
+          'd5_tendency_to_bark_or_howl':        'bark_tendency',
+          'e1_energy_level':                    'energy_level_dt',
+          'e3_exercise_needs':                  'exercise_needs',
+          'e4_potential_for_playfulness':       'playfulness',
+      })
+
+
 # 4. Handle nulls
-
-
+dogtime.isnull().sum()
+dogtime = dogtime.dropna()
 
 # -------------------------------- JOINING DATASETS --------------------------------
