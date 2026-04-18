@@ -9,5 +9,5 @@ subprocess.run(['python', 'clean.py'], check=True) # run 'python clean.py' comma
 
 # How to run full pipeline:
 # cd pipeline
-# source pipelinevenv/bin/activate
+# pipelinevenv\Scripts\activate
 # python run_pipeline.py
