@@ -188,6 +188,10 @@ def fuzzy_merge(df_a, df_b, columntomerge, threshold=80):
     merged = df_a.merge(
         df_b, left_on='matched_breed', right_on=columntomerge, how='inner'
     )
+    
+    # clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
+    merged = merged.drop(columns=['matched_breed','breed_y'])
+    merged = merged.rename(columns={'breed_x': 'breed'})
 
     return merged
 # things about this method to improve eventually later
@@ -197,16 +201,16 @@ def fuzzy_merge(df_a, df_b, columntomerge, threshold=80):
 # join akc + dogtime first
 akcdogtime = fuzzy_merge(akc, dogtime, 'breed')
 logging.info(f"akc + dogtime datasets fuzzy merge: {akcdogtime.shape[0]} breeds matched")
-# clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
-akcdogtime = akcdogtime.drop(columns=['matched_breed','breed_y'])
-akcdogtime = akcdogtime.rename(columns={'breed_x': 'breed'})
+# # clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
+# akcdogtime = akcdogtime.drop(columns=['matched_breed','breed_y'])
+# akcdogtime = akcdogtime.rename(columns={'breed_x': 'breed'})
 
 # Join Austin shelter stats
 final = fuzzy_merge(akcdogtime, shelter_stats, 'breed')
 logging.info(f"join austin dataset fuzzy merge: {final.shape[0]} breeds")
-# clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
-final = final.drop(columns=['matched_breed','breed_y'])
-final = final.rename(columns={'breed_x': 'breed'})
+# # clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
+# final = final.drop(columns=['matched_breed','breed_y'])
+# final = final.rename(columns={'breed_x': 'breed'})
 
 # checking values that i merged correctly
 logging.info(f"num of rows(breeds) and columns(traits): {final.shape}")
