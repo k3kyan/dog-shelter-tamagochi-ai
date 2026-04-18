@@ -50,18 +50,25 @@ xx. pip freeze > requirements.txt
 Branch: rag-pipeline -------------------------------------------------------------------------------------------------------------
 xx. python -m venv ragvenv
 xx. ragvenv\Scripts\activate
-xx. pip install chromadb sentence-transformers torch langchain
+xx. pip install chromadb sentence-transformers torch langchain langchain-groq python-dotenv
 xx. pip freeze > requirements.txt
 
+pip install -U langchain-text-splitters # bc from langchain.text_splitter wasnt importing # NOOOO i did the -u command #oh nvm -U is for upgrade, not global. still just installed into current python environment.
+pip install langchain-text-splitters
+
 ChromaDB: vector database (!!!!!) that stores and searches embeddings
-    embeddings - 
+    embeddings - a numerical representation (like vectors) of data (like text, images, or audio) that captures its semantic meaning
 sentence-transformers: converts text to vectors (embeddings)
     torch - sentence-transformers requires PyTorch (wont be using pytorch in this project directly)
 langchain: privdes the RecursiveCharacterTextSplitter for chunking
-    chunking - 
-
+    chunking - breaking down large documents into smaller, manageable text segments (chunks) during indexing. improves retriever efficiency by allowing semantic search to fetch precise, context-aware info instead of the entire document. improves rag system accuracy.
+    using Recursive Character Text Splitting instead of Contextual Retrieval or Fixed-size (can cut off sentences (bad)) chunking 
+        actually, i think im gonna add Contextual Retrieval 
+langchain-groq: calls Groq to generate context sentences per chunk
+python-dotenv: loads GROQ_API_KEY from .env
 
 1. Chunk article text
+2. Contextual Retrieval (add LLM-generated context to each chunk using Groq)
 2. embed with sentence-transformers
 3. store in ChromaDB
 
