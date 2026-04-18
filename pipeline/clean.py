@@ -1,4 +1,5 @@
 import pandas as pd, os, logging
+from thefuzz import process # add fuzzy merge function
 logging.basicConfig(level=logging.INFO)
 
 # -------------------------------- CLEANING DATA --------------------------------
@@ -156,3 +157,57 @@ dogtime.isnull().sum()
 dogtime = dogtime.dropna()
 
 # -------------------------------- JOINING DATASETS --------------------------------
+# Fuzzy-join all 3 cleaned datasets into one breed profile
+
+def fuzzy_merge(df_a, df_b, columntomerge, threshold=80): 
+    """
+    Joins two datasets/dataframes on a string (columnname) using fuzzy matching (instead of exact string matching).
+    threshold=80 means 80% string similarity required to match. (so matches columnname and merges even when the key strings dont match exactly)
+    """
+    # hold the best match for each row in df_a
+    matches = []
+    
+    # for every string in the key columntomerge of df_a, find the closest match in df_b (there should only be one match since we cleaned the data)
+    # loop through each "breed" value in df_a
+    # match rows based on a string column (key)
+    for breed in df_a[columntomerge]:
+        result = process.extractOne(breed, df_b[columntomerge].tolist()) # find the closest match in df_b # use fuzzy string matching instead of exact equality # compares columnname (breed) to all values in df_b[breed] #returns (best_match, similarity_score) ex: ("Golden Retriver", 92)
+        if result and result[1] >= threshold: # only keep matches with similarity ≥ threshold(which is 80)
+            matches.append(result[0])
+        else:
+            matches.append(None)
+    
+    # add matches (the fuzzy match results) as a new column
+    # bc there needs to be a JOIN KEY in the dataframe before it can merge (these values would be values from df_b[breed] column that most match the df_a[breed] column string)
+    df_a = df_a.copy()
+    df_a['matched_breed'] = matches
+    
+    # merge the dataframes
+    # joins df_a['matched_breed'] with df_b[columntomerge]
+    # how='inner' means (1) only rows with valid matches are kept (2) rows with None are dropped
+    merged = df_a.merge(
+        df_b, left_on='matched_breed', right_on=columntomerge, how='inner'
+    )
+
+    return merged
+# things about this method to improve eventually later
+    # nested comparisons is slow for large datasets (leetcode!)
+    # one sided matching, not symmetric, only matches df_a -> df_b
+
+# join akc + dogtime first
+akcdogtime = fuzzy_merge(akc, dogtime, 'breed')
+logging.info(f"akc + dogtime datasets fuzzy merge: {akcdogtime.shape[0]} breeds matched")
+# clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
+akcdogtime = akcdogtime.drop(columns=['matched_breed','breed_y'])
+akcdogtime = akcdogtime.rename(columns={'breed_x': 'breed'})
+
+# Join Austin shelter stats
+final = fuzzy_merge(akcdogtime, shelter_stats, 'breed')
+logging.info(f"join austin dataset fuzzy merge: {final.shape[0]} breeds")
+# clean up pandas anti collision renaming stuff + remove the join column since that was just for joining
+final = final.drop(columns=['matched_breed','breed_y'])
+final = final.rename(columns={'breed_x': 'breed'})
+
+# Save intermediate file
+os.makedirs('data/processed', exist_ok=True)
+final.to_parquet('data/processed/breed_profiles_raw.parquet', index=False)
