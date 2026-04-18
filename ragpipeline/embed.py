@@ -63,19 +63,11 @@ def chunk(articles: list[str]):
             
             # generate context for each chunk
             context = generate_context(article['text'], chunk)
-
-            # prepend context to chunk text before embedding #TODO: change this implementation??
-            # Note: need to combine context+chunk as one string because sentence-transformers only embeds one piece of text per entry (aka it cant embed 2 separate fields)
-            if context:
-                contextualized_text = f"{context}\n\n{chunk}"
-            else:
-                contextualized_text = chunk   # fallback if Groq fails
             
             # append chunks for embedding
             raw_chunks.append({
-                'text': contextualized_text, # the contextualized text for embedding #TODO: change this implementation??
-                'chunk': chunk, #stored as metadata in ChromaDB for debugging retrieval quality. does not get embedded
-                'context': context, #stored as metadata in ChromaDB for debugging retrieval quality. does not get embedded
+                'chunk': chunk, #for embedding + stored as metadata in ChromaDB for debugging retrieval quality
+                'context': context, #for embedding + stored as metadata in ChromaDB for debugging retrieval quality
                 'source_url': article['url'] #stored as metadata for display
             })
 
