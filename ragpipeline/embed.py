@@ -58,16 +58,16 @@ def chunk(articles: list[str]):
     )
 
     # chunk all articles
-    raw_chunks = []
+    all_chunks = []
     for article in articles:
         chunks = splitter.split_text(article['text']) #splits the article's 'text' field into a list of chunks of 500 chars
-        for chunk in chunks: # add the chunks to raw_chunks list, still keeping the other metadata for better context
+        for chunk in chunks: # add the chunks to all_chunks list, still keeping the other metadata for better context
             
             # generate context for each chunk
             context = generate_context(article['text'], chunk)
             
             # append chunks for embedding
-            raw_chunks.append({
+            all_chunks.append({
                 'chunk': chunk, #for embedding + stored as metadata in ChromaDB for debugging retrieval quality
                 'context': context, #for embedding + stored as metadata in ChromaDB for debugging retrieval quality
                 'source_url': article['url'] #stored as metadata for display
@@ -75,17 +75,17 @@ def chunk(articles: list[str]):
 
             time.sleep(2)   # stay under Groq's 30 req/min rate limit
     
-    print(f"Total raw chunks: {len(raw_chunks)}")
+    print(f"Total raw chunks: {len(all_chunks)}")
 
     # Check: looking at chunks to check and make sure theyre valid
-    for chunk in raw_chunks[:3]:
+    for chunk in all_chunks[:3]:
         print(f"Checking random chunk: {chunk['filename']} \nChunk Len: ({len(chunk['text'])} chars)")
         print(chunk['text'][:100])
 
     # Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
     os.makedirs('data', exist_ok=True)
     with open('data/contextualized_chunks.json', 'w') as f:
-        json.dump(raw_chunks, f, indent=2)
+        json.dump(all_chunks, f, indent=2)
     print("Saved contextualized_chunks.json")
 
 
