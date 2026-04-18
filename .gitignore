@@ -1,6 +1,9 @@
 # Python
 venv/
 pipelinevenv/
+scrapervenv/
+ragvenv/
+fastapivenv/
 __pycache__/
 *.pyc
 .env
