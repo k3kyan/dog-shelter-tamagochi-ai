@@ -62,7 +62,7 @@ shelter_stats['starting_trust'] = ((100 - (normalized_ave_days * max_starting_tr
 # USE: energy, trainability, demeanor, grooming, shedding scores --> KMeans clustering + LangChain trust-aware prompts
 
 # 1. Load and normalize breed names
-akc = pd.read_csv('data/raw/akc-data-latest.csv', index_col=0) #have to load index column 0 bc breed column doesnt have a name for some reason??
+akc = pd.read_csv('data/raw/akc-dog-breeds.csv', index_col=0) #have to load index column 0 bc breed column doesnt have a name for some reason??
 akc.index.name = 'breed' # the first column we set as index with index_col=0, we are renaming it to "breed"
 akc = akc.reset_index() #turns index from breed(index) to just breed (bc it was weird before) aka a regular column and not an index (easier for merging/joining datasets later)
 akc['breed'] = akc['breed'].str.upper().str.strip() # normalize breed names in case of irregular capitalization and leading/trailing whitespace
@@ -100,7 +100,7 @@ akc['temperament'] = akc['temperament'].fillna('')
 # USE: adopter profile matching (a1-a6) + trust multiplier (b1, b4) + game mechanic drain rates (c1-c5, d5, e1, e3, e4)
 
 # 1. Load and normalize breed names
-dogtime = pd.read_csv('data/raw/breeds.csv')
+dogtime = pd.read_csv('data/raw/dogtime-dataset.csv')
 dogtime['breed'] = dogtime['breed'].str.upper().str.strip() #normalize
 
 # 2. Filter only necessary columns
@@ -221,9 +221,9 @@ logging.info(f"make sure no duplicates: {final.duplicated(subset=['breed']).sum(
 # check specific example (golden retriever)
 cols = [
     'breed',
-    'energy_level',
-    'trainability',
-    'demeanor',
+    'energy_level_value',
+    'trainability_value',
+    'demeanor_value',
     'avg_days_in_shelter',
     'starting_trust',
     'apartment_friendly'
