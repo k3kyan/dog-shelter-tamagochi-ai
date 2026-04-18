@@ -27,6 +27,9 @@ Get data just for pandas pipeline
 Branch: data-cleaning-and-transformation
 Data Cleaning and Transformation
 xx. look at the datasets using jupyter and pandas
+    terminal: (must be running pipelinevenv)
+    terminal: jupyter notebook
+    terminal: jupyter notebook scratchpad_explore.ipynb
 9. research how to use pandas (pandas cheatsheet somewhere?)
 10. read the datasets to figure out how to group data
 11. clean shelter dataset bc i only need [how many days in shelter] (for only breeds that are in the akc dataset)
@@ -37,6 +40,18 @@ xx. look at the datasets using jupyter and pandas
 
 Pandas Pipeline Testing Local
 16. research how to test pandas?
+
+Branch: scraper
+xx. python -m venv scrapervenv
+xx. scrapervenv\Scripts\activate
+xx. pip install requests beautifulsoup4
+xx. pip freeze > requirements.txt
+
+
+
+
+
+Branch: rag-pipeline
 
 
 Branch: backend-fastAPI-endpoints-and-trustsystem
