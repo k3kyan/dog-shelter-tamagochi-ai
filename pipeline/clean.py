@@ -228,10 +228,10 @@ cols = [
     'starting_trust',
     'apartment_friendly'
     ]
-golden = final[final['breed'].str.contains('GOLDEN')][cols]
+golden = final[final['breed'].str.contains('GOLDEN')][cols].T #transpose for readability, it was not well fitted for terminal before
 logging.info(f"checking golden retriever profile: {golden}")
 
 
 # Save intermediate file
 os.makedirs('data/processed', exist_ok=True)
-final.to_parquet('data/processed/breed_profiles_raw.parquet', index=False)
+final.to_parquet('data/processed/breed_profiles.parquet', index=False)
