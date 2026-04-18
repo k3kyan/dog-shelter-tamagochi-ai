@@ -208,6 +208,26 @@ logging.info(f"join austin dataset fuzzy merge: {final.shape[0]} breeds")
 final = final.drop(columns=['matched_breed','breed_y'])
 final = final.rename(columns={'breed_x': 'breed'})
 
+# checking values that i merged correctly
+logging.info(f"num of rows(breeds) and columns(traits): {final.shape}")
+logging.info(f"names of columns: {final.columns.tolist()}")
+logging.info(f"make sure no null/NaN: {final.isnull().sum()} = 0")
+logging.info(f"make sure no duplicates: {final.duplicated(subset=['breed']).sum()} = 0") #expected: 0
+
+# check specific example (golden retriever)
+cols = [
+    'breed',
+    'energy_level',
+    'trainability',
+    'demeanor',
+    'avg_days_in_shelter',
+    'starting_trust',
+    'apartment_friendly'
+    ]
+golden = final[final['breed'].str.contains('GOLDEN')][cols]
+logging.info(f"checking golden retriever profile: {golden}")
+
+
 # Save intermediate file
 os.makedirs('data/processed', exist_ok=True)
 final.to_parquet('data/processed/breed_profiles_raw.parquet', index=False)
