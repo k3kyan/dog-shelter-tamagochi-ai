@@ -52,17 +52,7 @@ def scrape_all(urls_file: str) -> int:
     """
     with open(urls_file) as f:
         urls = [line.strip() for line in f if line.strip()]
-    # articles = []
     articles = 0
-    # for i, url in enumerate(urls):
-    #     print(f"Scraping {i+1}/{len(urls)}: {url}")
-    #     text = scrape_article(url)
-    #     if len(text) > 300:    # skip pages with too little content
-    #         articles.append({'url': url, 'text': text})
-    #         print(f"  → {len(text)} chars extracted")
-    #     else:
-    #         print(f"  → skipped (too little content)")
-    # return articles
     os.makedirs('data/articles', exist_ok=True)
     for i, url in enumerate(urls):
         print(f"Scraping {i+1}/{len(urls)}: {url}")
@@ -71,7 +61,7 @@ def scrape_all(urls_file: str) -> int:
             filepath = save_article(text, url, 'data/articles')
             print(f"  → saved to {filepath}")
         articles = articles + 1
-        
+
     return articles
 
 
@@ -79,12 +69,7 @@ def scrape_all(urls_file: str) -> int:
 if __name__ == '__main__':
     import json, os
     articles = scrape_all('article_urls.txt')
-    # print(f"\nScraped {len(articles)} articles successfully")
     print(f"\nScraped {articles} articles successfully")
-    # os.makedirs('data', exist_ok=True)
-    # with open('data/articles.json', 'w') as f:
-    #     json.dump(articles, f, indent=2)
-    # print("Saved to data/articles.json")
 
 
 
