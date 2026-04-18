@@ -1,6 +1,6 @@
 2026/04/16
 
-Branch: environment-setup
+Branch: environment-setup -------------------------------------------------------------------------------------------------------------
 Setup Env: 
 [2026/04/16] 1. python and node.js already installed
 [2026/04/16] 2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
@@ -24,7 +24,7 @@ Get data just for pandas pipeline
 
 
 
-Branch: data-cleaning-and-transformation
+Branch: data-cleaning-and-transformation -------------------------------------------------------------------------------------------------------------
 Data Cleaning and Transformation
 xx. look at the datasets using jupyter and pandas
     terminal: (must be running pipelinevenv)
@@ -41,20 +41,31 @@ xx. look at the datasets using jupyter and pandas
 Pandas Pipeline Testing Local
 16. research how to test pandas?
 
-Branch: scraper
+Branch: scraper -------------------------------------------------------------------------------------------------------------
 xx. python -m venv scrapervenv
 xx. scrapervenv\Scripts\activate
 xx. pip install requests beautifulsoup4
 xx. pip freeze > requirements.txt
 
+Branch: rag-pipeline -------------------------------------------------------------------------------------------------------------
+xx. python -m venv ragvenv
+xx. ragvenv\Scripts\activate
+xx. pip install chromadb sentence-transformers torch langchain
+xx. pip freeze > requirements.txt
+
+ChromaDB: vector database (!!!!!) that stores and searches embeddings
+    embeddings - 
+sentence-transformers: converts text to vectors (embeddings)
+    torch - sentence-transformers requires PyTorch (wont be using pytorch in this project directly)
+langchain: privdes the RecursiveCharacterTextSplitter for chunking
+    chunking - 
 
 
+1. Chunk article text
+2. embed with sentence-transformers
+3. store in ChromaDB
 
-
-Branch: rag-pipeline
-
-
-Branch: backend-fastAPI-endpoints-and-trustsystem
+Branch: backend-fastAPI-endpoints-and-trustsystem -------------------------------------------------------------------------------------------------------------
 xx. create app directory for backend (call it api, prob more professional?)
 xx. venv + dependencies
     pip install python-dotenv fastapi uvicorn mangum langchain langchain-groq 
@@ -69,11 +80,11 @@ xx. figure out how to show personality of dogs and incorporate trust layer (frie
 Branch: merge to main and test backend+data
 xx. test out the backend with swaggerui or something
 
-Branch: react frontend
+Branch: react frontend -------------------------------------------------------------------------------------------------------------
 xx. create app directory for frontend 
 Branch: merge to main and test fullstack
 
-Branch: aws setup 
+Branch: aws setup  -------------------------------------------------------------------------------------------------------------
 xx. create app directory for cicd aws
 xx. cloudformation
 xx. aws setup 
