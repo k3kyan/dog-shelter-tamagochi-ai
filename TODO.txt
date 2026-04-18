@@ -46,9 +46,6 @@ xx. python -m venv scrapervenv
 xx. scrapervenv\Scripts\activate
 xx. pip install requests beautifulsoup4
 xx. pip freeze > requirements.txt
-        Actually, i dont need it for scraper i think, these libraries worked fine without me installing venv ?? just checked theyre already installed on python, idk if came with or i did it
-        oh wait i was in the pipeline venv... why is beautifulsoup4 and requests instlaled there ???
-        made the venv, yeah i needed to do that, it was bc i was in the pipelinevenv
 
 
 
