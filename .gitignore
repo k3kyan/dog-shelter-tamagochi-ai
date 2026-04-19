@@ -22,7 +22,10 @@ data/processed/
 
 # rag pipeline
 # ignored because its a large generated artifact. to regenerate it, run embed py
-data/chroma_db/
+# data/chroma_db/ wont ignore for some reason??
+# data/chroma_db/
+# ragpipeline/data/
+chroma_db/
 
 # Build artifacts
 dist/
