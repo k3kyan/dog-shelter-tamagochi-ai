@@ -114,12 +114,13 @@ def generate_context(full_article: str, chunk: str) -> str:
     Be specific: mention the breed if relevant and the topic.
     Keep it under 100 words. Output ONLY the context sentence, nothing else.
 
-    Full Article: {full_article}
+    Article excerpt: {full_article[:2000]}
 
     Chunk to contextualize: {chunk}
 
     Context sentence:
     """
+    # IMPORTANT!! {full_article[:2000]} truncate to avoid hitting Groq's tokens-per-minute limit, reduce token usage and stop rate limiting
     #the "Context sentence:" being left at the end of the prompt string is a prompting technique called a "completion prompt". Also prevents it from giving unecessary conversational text like "Sure! here u go" so u go straight to the content u want
 
     try:

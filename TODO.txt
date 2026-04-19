@@ -67,10 +67,15 @@ langchain: privdes the RecursiveCharacterTextSplitter for chunking
 langchain-groq: calls Groq to generate context sentences per chunk
 python-dotenv: loads GROQ_API_KEY from .env
 
-1. Chunk article text
-2. Contextual Retrieval (add LLM-generated context to each chunk using Groq)
-2. embed with sentence-transformers
-3. store in ChromaDB
+1. get the api key for Groq
+console.groq.com
+
+2. Chunk article text
+3. Contextual Retrieval (add LLM-generated context to each chunk using Groq)
+4. embed with sentence-transformers
+5. store in ChromaDB
+
+BIG FIX: The bottleneck was generate_content() bc sending the FULL ARTICLE to groq, it can mess up Groq's tokens-per-minute rate limit, which causes it to throttle and makes each call take 20-30 seconds. So i truncated it bc i only need enough surrounding context for the chunk, not the entire article. 
 
 Branch: backend-fastAPI-endpoints-and-trustsystem -------------------------------------------------------------------------------------------------------------
 xx. create app directory for backend (call it api, prob more professional?)
