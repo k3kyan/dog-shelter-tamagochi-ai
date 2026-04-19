@@ -61,7 +61,7 @@ def chunk(articles: list[str]) -> list[str]:
         chunks = splitter.split_text(article['text']) #splits the article's 'text' field into a list of chunks of 500 chars
         
         # Check: logging how long it takes between each processing
-        print(f"Total chunks for article no. {article_no}: {len(chunks)}")
+        print(f"------------------Total chunks for article no. {article_no}: {len(chunks)}------------------")
         article_no = article_no + 1
         chunk_no = 1
 
@@ -70,7 +70,7 @@ def chunk(articles: list[str]) -> list[str]:
             current_time = time.perf_counter()
             elapsed = current_time - last_time
             last_time = current_time
-            print(f"Article no. {article_no} Chunk no. {chunk_no}: waited {elapsed:.2f} seconds")
+            print(f"\n---------Article no. {article_no} Chunk no. {chunk_no}: waited {elapsed:.2f} seconds---------")
             chunk_no = chunk_no + 1
 
             # generate context for each chunk
@@ -83,9 +83,12 @@ def chunk(articles: list[str]) -> list[str]:
                 'source_url': article['url'] #stored as metadata for display
             })
 
-            print(f"\nProcessed chunk: {chunk[:50]}")
+            print(f"Processed chunk: {chunk[:50]}")
             print(f"Processed context: {context[:50]}")
-            time.sleep(2)   # stay under Groq's 30 req/min rate limit
+
+            if (elapsed < 2 ):
+                print(f"Time to sleep: {2 - elapsed}")
+                time.sleep(2 - elapsed)   # stay under Groq's 30 req/min rate limit (otherwise i'll get an error like "429 Too Many Requests" or “rate limit exceeded” where my request is rejected)
     
     print(f"Total contextualized chunks: {len(all_chunks)}")
 
