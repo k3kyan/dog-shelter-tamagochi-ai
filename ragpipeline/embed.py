@@ -7,10 +7,11 @@ import time # wait between calls to stay under the Groq limit (30 requests/minut
 import json
 from sentence_transformers import SentenceTransformer
 import chromadb
+load_dotenv()
 
 # Initialize Groq LLM for context generation
 llm = ChatGroq(
-    model='llama3-8b-8192', #fast and free model, context generation is simple so dont need large model
+    model='llama-3.1-8b-instant', #fast and free model, context generation is simple so dont need large model
     api_key=os.getenv('GROQ_API_KEY'),
 )
 
@@ -19,7 +20,6 @@ def load_articles(dirpath: str) -> list[str]:
     """
     Load the article text files from the scraped data
     """
-    load_dotenv()
     ARTICLES_DIR = Path(os.getenv('ARTICLES_DIR', dirpath))
     articles = []
 
