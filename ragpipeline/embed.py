@@ -132,56 +132,63 @@ def embed_in_chromadb(contextualized_chunks):
         name='dog_care_articles',
         metadata={'hnsw:space': 'cosine'} # cosine similarity is standard choice for text embedding similarity
     )
-
-    # make a list of the sentences to embed (context + chunk)
-    documents = []
-    for c in contextualized_chunks:
-        if c['context']:
-            combined_chunk_context = f"{c['context']}\n\n{c['chunk']}"
-        else:
-            combined_chunk_context = c['chunk']
-        documents.append(combined_chunk_context)
-
-    # generate unique id's for each chunk (bc chromadb requires an ID for each document)
-    ids = []
-    for i in range(len(contextualized_chunks)):
-        ids.append(f"chunk_{i}")
-
-    # metadata for each chunk
-    metadatas = []
-    for c in contextualized_chunks:
-        metadatas.append({
-            'chunk': c['chunk'],
-            'context': c['context'],
-            'source_url': c['source_url'] 
-        })
-
-    # Note: batches to avoid memory issues with large collections of text. processing 50 chunks per batch is good with most machines
-    # also prevents timeouts
-    # also speeds up embedding API's (TODO-LATER:but i need to research more about this point)
-    BATCH_SIZE = 50
-    for i in range(0, len(documents), BATCH_SIZE):
-        # sections in batches
-        batch_docs = documents[i:i+BATCH_SIZE]
-        batch_ids  = ids[i:i+BATCH_SIZE]
-        batch_metadatas = metadatas[i:i+BATCH_SIZE]
-
-        # generate embeddings (!!!!!) (converts text -> vectors (embeddings) yay!!) 
-        embeddings = model.encode(batch_docs).tolist()
-
-        # store in ChromaDB (aka add everything to the chromadb vector database) (allows semantic search!! yayay)
-        collection.add(
-            documents=batch_docs, #the context+chunks texts
-            embeddings=embeddings, #the embedding vectors! yay!!
-            ids=batch_ids,
-            metadatas=batch_metadatas, #for retrieval
-        )
-
-        # print progress in terminal as program runs
-        print(f"Embedded batch {i//BATCH_SIZE + 1} / "
-            f"{(len(documents)-1)//BATCH_SIZE + 1}")
     
-    print(f"\nChromaDB complete: {collection.count()} items stored in database")
+    # if ChromaDB already has data, skip re-embedding to save api calls and time
+    if collection.count() > 0:
+        print(f"ChromaDB already has {collection.count()} chunks. Skipping embedding")
+        print("Delete data/chroma_db/ to force re-embed")
+    else:
+        # --------------------- actual processing ----------------------
+
+        # make a list of the sentences to embed (context + chunk)
+        documents = []
+        for c in contextualized_chunks:
+            if c['context']:
+                combined_chunk_context = f"{c['context']}\n\n{c['chunk']}"
+            else:
+                combined_chunk_context = c['chunk']
+            documents.append(combined_chunk_context)
+
+        # generate unique id's for each chunk (bc chromadb requires an ID for each document)
+        ids = []
+        for i in range(len(contextualized_chunks)):
+            ids.append(f"chunk_{i}")
+
+        # metadata for each chunk
+        metadatas = []
+        for c in contextualized_chunks:
+            metadatas.append({
+                'chunk': c['chunk'],
+                'context': c['context'],
+                'source_url': c['source_url'] 
+            })
+
+        # Note: batches to avoid memory issues with large collections of text. processing 50 chunks per batch is good with most machines
+        # also prevents timeouts
+        # also speeds up embedding API's (TODO-LATER:but i need to research more about this point)
+        BATCH_SIZE = 50
+        for i in range(0, len(documents), BATCH_SIZE):
+            # sections in batches
+            batch_docs = documents[i:i+BATCH_SIZE]
+            batch_ids  = ids[i:i+BATCH_SIZE]
+            batch_metadatas = metadatas[i:i+BATCH_SIZE]
+
+            # generate embeddings (!!!!!) (converts text -> vectors (embeddings) yay!!) 
+            embeddings = model.encode(batch_docs).tolist()
+
+            # store in ChromaDB (aka add everything to the chromadb vector database) (allows semantic search!! yayay)
+            collection.add(
+                documents=batch_docs, #the context+chunks texts
+                embeddings=embeddings, #the embedding vectors! yay!!
+                ids=batch_ids,
+                metadatas=batch_metadatas, #for retrieval
+            )
+
+            # print progress in terminal as program runs
+            print(f"Embedded batch {i//BATCH_SIZE + 1} / "
+                f"{(len(documents)-1)//BATCH_SIZE + 1}")
+        
+        print(f"\nChromaDB complete: {collection.count()} items stored in database")
 
 
 
