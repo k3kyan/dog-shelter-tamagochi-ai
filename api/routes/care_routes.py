@@ -35,8 +35,9 @@ def perform_care(req: CareRequestSchema):
     # base action value x personality friendliness multiplier
     gain = round(TRUST_GAINS.get(req.action, 2) * trust_multiplier(aff, sf), 1)
 
-    # update trust score (caps at 100)
-    new_trust = min(100.0, round(req.current_trust + gain, 1))
+    # update trust score (caps between 0, 100)
+    value = round(req.current_trust + gain, 1)
+    new_trust = max(0.0, min(100.0, value))
 
 
     return {'new_trust': new_trust,  #updated trust value

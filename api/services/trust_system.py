@@ -8,7 +8,7 @@ TRUST_GAINS = {
     'feed': 7, 
     'groom': 3, 
     'talk': 5,
-    'ignore': -1 #TODO: make sure theres protection against negative trust
+    'ignore': -1
 }
 
 # determines what stage of trust the dog is in based on trust value
