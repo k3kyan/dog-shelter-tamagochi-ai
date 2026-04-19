@@ -80,8 +80,14 @@ BIG FIX: The bottleneck was generate_content() bc sending the FULL ARTICLE to gr
 Branch: backend-fastAPI-endpoints-and-trustsystem -------------------------------------------------------------------------------------------------------------
 xx. create app directory for backend (call it api, prob more professional?)
 xx. venv + dependencies
-    pip install python-dotenv fastapi uvicorn mangum langchain langchain-groq 
-xx. groq api sign up
+    xx. python -m venv apivenv
+    xx. apivenv\Scripts\activate
+    xx. python.exe -m pip install --upgrade pip
+    xx. pip install fastapi uvicorn mangum python-dotenv 
+    xx. pip install langchain langchain-groq chromadb sentence-transformers
+    xx. pip install pandas pyarrow pytest httpx torch
+    xx. pip freeze > requirements.txt
+
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
     (maybe if trust system is too complicated, just keep the personality part?)
 xx. (additional feature?? player lifestyle??? to match up with dogtime dataset traits, which are cool)
