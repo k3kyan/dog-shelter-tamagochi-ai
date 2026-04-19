@@ -55,7 +55,7 @@ def chunk(articles: list[str]) -> list[str]:
 
     # chunk all articles
     all_chunks = []
-    article_no = 0
+    article_no = 1
     last_time = time.perf_counter()
     for article in articles:
         chunks = splitter.split_text(article['text']) #splits the article's 'text' field into a list of chunks of 500 chars
@@ -63,7 +63,7 @@ def chunk(articles: list[str]) -> list[str]:
         # Check: logging how long it takes between each processing
         print(f"Total chunks for article no. {article_no}: {len(chunks)}")
         article_no = article_no + 1
-        chunk_no = 0
+        chunk_no = 1
 
         for chunk in chunks: # add the chunks to all_chunks list, still keeping the other metadata for better context
             
@@ -71,6 +71,7 @@ def chunk(articles: list[str]) -> list[str]:
             elapsed = current_time - last_time
             last_time = current_time
             print(f"Article no. {article_no} Chunk no. {chunk_no}: waited {elapsed:.2f} seconds")
+            chunk_no = chunk_no + 1
 
             # generate context for each chunk
             context = generate_context(article['text'], chunk)
