@@ -3,7 +3,7 @@ venv/
 pipelinevenv/
 scrapervenv/
 ragvenv/
-fastapivenv/
+apivenv/
 __pycache__/
 *.pyc
 .env
