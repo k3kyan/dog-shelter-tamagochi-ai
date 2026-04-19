@@ -20,6 +20,13 @@ data/processed/
 # since raw data and artifacts shouldn't be published to github
 # got data from kaggle.com
 
+# rag pipeline
+# ignored because its a large generated artifact. to regenerate it, run embed py
+# data/chroma_db/ wont ignore for some reason??
+# data/chroma_db/
+# ragpipeline/data/
+chroma_db/
+
 # Build artifacts
 dist/
 node_modules/

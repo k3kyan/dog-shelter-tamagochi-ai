@@ -14,3 +14,13 @@ scraper/: data acquisition, just get articles for rag pipeline
 rag/: chunking, embedding, chromaDB
 api/: will use chromadb from rag
 frontend/: frontend
+
+## Running the project
+1. pipeline/run_pipeline.py             run etl pipeline
+2. (optional) scraper/url_scraper.py    get urls to scrape
+3. scraper/article_scraper.py           get article content text
+4. ragpipeline/embed.py                 builds chromadb database 
+                                        (turns articles into chunks, 
+                                        converts chunks to embeddings, 
+                                        stores embeddings to chromadb vector database)
+5. 

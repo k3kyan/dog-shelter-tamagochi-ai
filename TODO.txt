@@ -1,6 +1,6 @@
 2026/04/16
 
-Branch: environment-setup
+Branch: environment-setup -------------------------------------------------------------------------------------------------------------
 Setup Env: 
 [2026/04/16] 1. python and node.js already installed
 [2026/04/16] 2. create project directory outline (for 1. pandas pipeline, 2. fastapi backend, 3. react frontend, 4. aws cloudformation)
@@ -24,7 +24,7 @@ Get data just for pandas pipeline
 
 
 
-Branch: data-cleaning-and-transformation
+Branch: data-cleaning-and-transformation -------------------------------------------------------------------------------------------------------------
 Data Cleaning and Transformation
 xx. look at the datasets using jupyter and pandas
     terminal: (must be running pipelinevenv)
@@ -41,20 +41,43 @@ xx. look at the datasets using jupyter and pandas
 Pandas Pipeline Testing Local
 16. research how to test pandas?
 
-Branch: scraper
+Branch: scraper -------------------------------------------------------------------------------------------------------------
 xx. python -m venv scrapervenv
 xx. scrapervenv\Scripts\activate
 xx. pip install requests beautifulsoup4
 xx. pip freeze > requirements.txt
 
+Branch: rag-pipeline -------------------------------------------------------------------------------------------------------------
+xx. python -m venv ragvenv
+xx. ragvenv\Scripts\activate
+xx. pip install chromadb sentence-transformers torch langchain langchain-groq python-dotenv
+xx. pip freeze > requirements.txt
 
+pip install -U langchain-text-splitters # bc from langchain.text_splitter wasnt importing # NOOOO i did the -u command #oh nvm -U is for upgrade, not global. still just installed into current python environment.
+pip install langchain-text-splitters
 
+ChromaDB: vector database (!!!!!) that stores and searches embeddings
+    embeddings - a numerical representation (like vectors) of data (like text, images, or audio) that captures its semantic meaning
+sentence-transformers: converts text to vectors (embeddings)
+    torch - sentence-transformers requires PyTorch (wont be using pytorch in this project directly)
+langchain: privdes the RecursiveCharacterTextSplitter for chunking
+    chunking - breaking down large documents into smaller, manageable text segments (chunks) during indexing. improves retriever efficiency by allowing semantic search to fetch precise, context-aware info instead of the entire document. improves rag system accuracy.
+    using Recursive Character Text Splitting instead of Contextual Retrieval or Fixed-size (can cut off sentences (bad)) chunking 
+        actually, i think im gonna add Contextual Retrieval 
+langchain-groq: calls Groq to generate context sentences per chunk
+python-dotenv: loads GROQ_API_KEY from .env
 
+1. get the api key for Groq
+console.groq.com
 
-Branch: rag-pipeline
+2. Chunk article text
+3. Contextual Retrieval (add LLM-generated context to each chunk using Groq)
+4. embed with sentence-transformers
+5. store in ChromaDB
 
+BIG FIX: The bottleneck was generate_content() bc sending the FULL ARTICLE to groq, it can mess up Groq's tokens-per-minute rate limit, which causes it to throttle and makes each call take 20-30 seconds. So i truncated it bc i only need enough surrounding context for the chunk, not the entire article. 
 
-Branch: backend-fastAPI-endpoints-and-trustsystem
+Branch: backend-fastAPI-endpoints-and-trustsystem -------------------------------------------------------------------------------------------------------------
 xx. create app directory for backend (call it api, prob more professional?)
 xx. venv + dependencies
     pip install python-dotenv fastapi uvicorn mangum langchain langchain-groq 
@@ -69,11 +92,11 @@ xx. figure out how to show personality of dogs and incorporate trust layer (frie
 Branch: merge to main and test backend+data
 xx. test out the backend with swaggerui or something
 
-Branch: react frontend
+Branch: react frontend -------------------------------------------------------------------------------------------------------------
 xx. create app directory for frontend 
 Branch: merge to main and test fullstack
 
-Branch: aws setup 
+Branch: aws setup  -------------------------------------------------------------------------------------------------------------
 xx. create app directory for cicd aws
 xx. cloudformation
 xx. aws setup 
