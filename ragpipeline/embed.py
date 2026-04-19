@@ -102,11 +102,6 @@ def chunk(articles: list[str]) -> list[str]:
 
     print(f"Total contextualized chunks: {len(all_chunks)}")
 
-    # Check: looking at chunks to check and make sure theyre valid
-    for chunk in all_chunks[:3]:
-        print(f"Checking random chunk: {chunk['filename']} \nChunk Len: ({len(chunk['text'])} chars)")
-        print(chunk['text'][:100])
-
     # Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
     os.makedirs('data', exist_ok=True)
     with open(cache_path, 'w') as f:
