@@ -84,7 +84,7 @@ def chunk(articles: list[str]) -> list[str]:
 
             print(f"\nProcessed chunk: {chunk[:50]}")
             print(f"Processed context: {context[:50]}")
-            # time.sleep(2)   # stay under Groq's 30 req/min rate limit
+            time.sleep(2)   # stay under Groq's 30 req/min rate limit
     
     print(f"Total contextualized chunks: {len(all_chunks)}")
 
