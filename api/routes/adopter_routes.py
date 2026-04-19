@@ -3,6 +3,7 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
+from services.etlpipeline_loader import breed_df
 
 from schemas.adopter_schema import (
     AdopterProfileSchema
@@ -13,7 +14,7 @@ adopter_router = APIRouter(
     tags=["adopter"]
 )
 
-breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
+# breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
 # calculates score of every dog breed (in DogTime Data) based on how well it matches a user's lifestyle
 # creates a scoring table using a dataframe with all breeds

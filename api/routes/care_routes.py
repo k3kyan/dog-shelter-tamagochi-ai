@@ -1,6 +1,7 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
+from services.etlpipeline_loader import breed_df
 
 from services.trust_system import TRUST_GAINS, trust_multiplier, get_trust_stage
 from schemas.care_schema import (
@@ -12,7 +13,8 @@ care_router = APIRouter(
     tags=["care", "trust_system"]
 )
 
-breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
+# TODO: check, hopefully the etlpipeline_loader works?
+# breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
 # how user's action affect's a dog's trust level based on the breed's personality
 # used for updating/calculating trust

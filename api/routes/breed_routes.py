@@ -1,13 +1,14 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
+from services.etlpipeline_loader import breed_df
 
 breed_router = APIRouter(
     prefix="/breeds",
     tags=["breeds"]
 )
 
-breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
+# breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
 # get list of breeds
 @breed_router.get("/")
