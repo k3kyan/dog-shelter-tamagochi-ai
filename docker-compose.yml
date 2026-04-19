@@ -1,5 +1,5 @@
 # run setup_db.py
-version: '3.8'
+version: '3.8' #TODO: obsolete? should remove?
 services:
   dynamodb-local:
     image: amazon/dynamodb-local
