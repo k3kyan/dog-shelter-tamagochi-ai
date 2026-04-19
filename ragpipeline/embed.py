@@ -5,7 +5,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_groq import ChatGroq
 import time # wait between calls to stay under the Groq limit (30 requests/minute on llama 3 8B)
 import json
-
+from sentence_transformers import SentenceTransformer
+import chromadb
 
 # Initialize Groq LLM for context generation
 llm = ChatGroq(
@@ -40,15 +41,10 @@ def load_articles(dirpath: str) -> list[str]:
     return articles
 
 
-
-
-
-# TODO: Actually, wouldn't it be better instead of storing each article, just chunk each as they come in ???
-
-
 # 2. Chunk with recursive character text splitter
 # + generate context with groq to embed
-def chunk(articles: list[str]):
+# TODO-LATER: outputs the chunks list but prob a better way to do this
+def chunk(articles: list[str]) -> list[str]:
     # Text splitter, since the articles are too long to embed whole. splitting into focused chunks means retrieval returns relevant pieces, not entire articles
     # RecursiveCharacterTextSplitter tries paragraph breaks first, then sentences, then words
     splitter = RecursiveCharacterTextSplitter(
@@ -88,9 +84,7 @@ def chunk(articles: list[str]):
         json.dump(all_chunks, f, indent=2)
     print("Saved contextualized_chunks.json")
 
-
-    return None
-
+    return all_chunks
 
 
 # 3. Contextrual Retrieval (generated as each chunk is processed above)
@@ -122,11 +116,78 @@ def generate_context(full_article: str, chunk: str) -> str:
         return ''
     
 
-# 4. Embed and store in ChromaDB
+# 4. Embed chunks and store in ChromaDB
+# THE CORE OF A RAG PIPELINE!!!!!!
+def embed_in_chromadb(contextualized_chunks):
+
+    # Load the sentence transformer embedding model
+    model = SentenceTransformer('all-MiniLM-L6-v2') #fast and free model, ~80MB, good general purpose quality (first run downloads the model (~80MB) — takes 1-2 minutes)
+
+    # Set up ChromaDB persistent client
+    # Note: PersistentClient saves the vector database to disk so you embed once and the db persists between python sessions
+    CHROMA_DIR = os.getenv('CHROMA_DIR', 'data/chroma_db')
+    os.makedirs(CHROMA_DIR, exist_ok=True)
+    client = chromadb.PersistentClient(path=CHROMA_DIR)
+    collection = client.get_or_create_collection(
+        name='dog_care_articles',
+        metadata={'hnsw:space': 'cosine'} # cosine similarity is standard choice for text embedding similarity
+    )
+
+    # make a list of the sentences to embed (context + chunk)
+    documents = []
+    for c in contextualized_chunks:
+        if c['context']:
+            combined_chunk_context = f"{c['context']}\n\n{c['chunk']}"
+        else:
+            combined_chunk_context = c['chunk']
+        documents.append(combined_chunk_context)
+
+    # generate unique id's for each chunk (bc chromadb requires an ID for each document)
+    ids = []
+    for i in range(len(contextualized_chunks)):
+        ids.append(f"chunk_{i}")
+
+    # metadata for each chunk
+    metadatas = []
+    for c in contextualized_chunks:
+        metadatas.append({
+            'chunk': c['chunk'],
+            'context': c['context'],
+            'source_url': c['source_url'] 
+        })
+
+    # Note: batches to avoid memory issues with large collections of text. processing 50 chunks per batch is good with most machines
+    # also prevents timeouts
+    # also speeds up embedding API's (TODO-LATER:but i need to research more about this point)
+    BATCH_SIZE = 50
+    for i in range(0, len(documents), BATCH_SIZE):
+        # sections in batches
+        batch_docs = documents[i:i+BATCH_SIZE]
+        batch_ids  = ids[i:i+BATCH_SIZE]
+        batch_metadatas = metadatas[i:i+BATCH_SIZE]
+
+        # generate embeddings (!!!!!) (converts text -> vectors (embeddings) yay!!) 
+        embeddings = model.encode(batch_docs).tolist()
+
+        # store in ChromaDB (aka add everything to the chromadb vector database) (allows semantic search!! yayay)
+        collection.add(
+            documents=batch_docs, #the context+chunks texts
+            embeddings=embeddings, #the embedding vectors! yay!!
+            ids=batch_ids,
+            metadatas=batch_metadatas, #for retrieval
+        )
+
+        # print progress in terminal as program runs
+        print(f"Embedded batch {i//BATCH_SIZE + 1} / "
+            f"{(len(documents)-1)//BATCH_SIZE + 1}")
+    
+    print(f"\nChromaDB complete: {collection.count()} items stored in database")
+
 
 
 # 5. Run it all together
 if __name__ == '__main__':
     import json, os
     articles = load_articles('../scraper/data/articles')
-    chunk(articles)
+    contextualized_chunks = chunk(articles) # TODO-LATER: Actually, wouldn't it be better instead of storing each article, just chunk each as they come in ??? (will do that later)
+    embed_in_chromadb(contextualized_chunks)
