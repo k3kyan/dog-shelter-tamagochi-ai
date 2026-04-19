@@ -26,6 +26,8 @@ data/processed/
 # data/chroma_db/
 # ragpipeline/data/
 chroma_db/
+missingcontextbcranoutoftokens_chroma_db/
+missingcontextbcranoutoftokens_contextualized_chunks.json
 
 # Build artifacts
 dist/
