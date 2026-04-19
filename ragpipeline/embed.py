@@ -45,6 +45,13 @@ def load_articles(dirpath: str) -> list[str]:
 # + generate context with groq to embed
 # TODO-LATER: outputs the chunks list but prob a better way to do this
 def chunk(articles: list[str]) -> list[str]:
+    # Resume from existing JSON if available (skips Groq calls entirely)
+    cache_path = 'data/contextualized_chunks.json'
+    if os.path.exists(cache_path):
+        print(f"Found existing {cache_path}, loading from cache. Delete it to regenerate.")
+        with open(cache_path) as f:
+            return json.load(f)
+
     # Text splitter, since the articles are too long to embed whole. splitting into focused chunks means retrieval returns relevant pieces, not entire articles
     # RecursiveCharacterTextSplitter tries paragraph breaks first, then sentences, then words
     splitter = RecursiveCharacterTextSplitter(
@@ -55,27 +62,25 @@ def chunk(articles: list[str]) -> list[str]:
 
     # chunk all articles
     all_chunks = []
-    article_no = 1
+    article_no = 0
     last_time = time.perf_counter()
     for article in articles:
         chunks = splitter.split_text(article['text']) #splits the article's 'text' field into a list of chunks of 500 chars
         
         # Check: logging how long it takes between each processing
-        print(f"------------------Total chunks for article no. {article_no}: {len(chunks)}------------------")
         article_no = article_no + 1
         chunk_no = 1
+        print(f"------------------Total chunks for article no. {article_no}: {len(chunks)}------------------")
+
+        # took this out bc it was taking too long and for this small project, i want it to not take 15 hours
+        # for chunk in chunks: # add the chunks to all_chunks list, still keeping the other metadata for better context
+
+        # generate context once per article (same article preview for all chunks = no point calling Groq per chunk (esp for this small project))
+        context = generate_context(article['text'], chunks[0])
+        # generate context for each chunk (theoretically, would be nice)
+        # context = generate_context(article['text'], chunk)
 
         for chunk in chunks: # add the chunks to all_chunks list, still keeping the other metadata for better context
-            
-            current_time = time.perf_counter()
-            elapsed = current_time - last_time
-            last_time = current_time
-            print(f"\n---------Article no. {article_no} Chunk no. {chunk_no}: waited {elapsed:.2f} seconds---------")
-            chunk_no = chunk_no + 1
-
-            # generate context for each chunk
-            context = generate_context(article['text'], chunk)
-            
             # append chunks for embedding
             all_chunks.append({
                 'chunk': chunk, #for embedding + stored as metadata in ChromaDB for debugging retrieval quality
@@ -83,13 +88,18 @@ def chunk(articles: list[str]) -> list[str]:
                 'source_url': article['url'] #stored as metadata for display
             })
 
+            current_time = time.perf_counter()
+            elapsed = current_time - last_time
+            last_time = current_time
+            print(f"\n---------Article no. {article_no} Chunk no. {chunk_no}: waited {elapsed:.2f} seconds---------")
+            chunk_no = chunk_no + 1
             print(f"Processed chunk: {chunk[:50]}")
             print(f"Processed context: {context[:50]}")
+        
+        if (elapsed < 2 ):
+            print(f"Time to sleep: {2 - elapsed}")
+            time.sleep(2 - elapsed)   # stay under Groq's 30 req/min rate limit (otherwise i'll get an error like "429 Too Many Requests" or “rate limit exceeded” where my request is rejected)
 
-            if (elapsed < 2 ):
-                print(f"Time to sleep: {2 - elapsed}")
-                time.sleep(2 - elapsed)   # stay under Groq's 30 req/min rate limit (otherwise i'll get an error like "429 Too Many Requests" or “rate limit exceeded” where my request is rejected)
-    
     print(f"Total contextualized chunks: {len(all_chunks)}")
 
     # Check: looking at chunks to check and make sure theyre valid
@@ -99,7 +109,7 @@ def chunk(articles: list[str]) -> list[str]:
 
     # Store in json so when rerunning program, wont have to wait for Groq to regenerate the contexts per chunks again
     os.makedirs('data', exist_ok=True)
-    with open('data/contextualized_chunks.json', 'w') as f:
+    with open(cache_path, 'w') as f:
         json.dump(all_chunks, f, indent=2)
     print("Saved contextualized_chunks.json")
 
