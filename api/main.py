@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from routes import breed_routes, adopter_routes
+from routes import breed_routes, adopter_routes, care_routes
 
 app = FastAPI()
 
@@ -21,6 +21,7 @@ app.add_middleware(
 
 app.include_router(breed_routes.breed_router)
 app.include_router(adopter_routes.adopter_router)
+app.include_router(care_routes.care_router)
 
 
 handler = Mangum(app)
