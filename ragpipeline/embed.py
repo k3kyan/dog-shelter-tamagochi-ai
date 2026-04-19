@@ -69,8 +69,8 @@ def chunk(articles: list[str]) -> list[str]:
                 'source_url': article['url'] #stored as metadata for display
             })
 
-            print(f"\nProcessed chunk: {chunk['text'][:20]}")
-            print(f"Processed context: {chunk['context'][:20]}")
+            print(f"\nProcessed chunk: {chunk[:20]}")
+            print(f"Processed context: {chunk[:20]}")
             time.sleep(2)   # stay under Groq's 30 req/min rate limit
     
     print(f"Total raw chunks: {len(all_chunks)}")
