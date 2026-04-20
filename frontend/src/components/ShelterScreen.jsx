@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getBreeds, getBreed, startGame } from '../api/client'
+import { getBreeds, startGame } from '../api/client'
 
 function getCompatibilityBadge(score) {
   if (score >= 90) return 'Perfect match'
@@ -9,8 +9,7 @@ function getCompatibilityBadge(score) {
 }
 
 export default function ShelterScreen({ playerName, adopterProfile, breedScores, onStart, onBack }) {
-  const [breeds, setBreeds] = useState([])
-  const [breedDetails, setBreedDetails] = useState({})
+  const [breeds, setBreeds] = useState([]) // [{breed, avg_days_in_shelter}]
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(null)
   const [error, setError] = useState('')
@@ -18,14 +17,8 @@ export default function ShelterScreen({ playerName, adopterProfile, breedScores,
   useEffect(() => {
     getBreeds()
       .then(res => {
-        const names = res.data
-        setBreeds(names)
+        setBreeds(res.data)
         setLoading(false)
-        names.forEach(breed => {
-          getBreed(breed)
-            .then(dr => setBreedDetails(prev => ({ ...prev, [breed]: dr.data })))
-            .catch(() => {})
-        })
       })
       .catch(() => {
         setError('Could not load breeds. Is the server running?')
@@ -34,7 +27,7 @@ export default function ShelterScreen({ playerName, adopterProfile, breedScores,
   }, [])
 
   const sortedBreeds = [...breeds].sort((a, b) => {
-    return (breedScores[b] ?? 0) - (breedScores[a] ?? 0)
+    return (breedScores[b.breed] ?? 0) - (breedScores[a.breed] ?? 0)
   })
 
   const handleBreedClick = async (breed) => {
@@ -67,11 +60,9 @@ export default function ShelterScreen({ playerName, adopterProfile, breedScores,
       {error && <p className="error shelter-error">{error}</p>}
 
       <div className="breed-grid">
-        {sortedBreeds.map(breed => {
+        {sortedBreeds.map(({ breed, avg_days_in_shelter }) => {
           const score = breedScores[breed]
           const badge = score !== undefined ? getCompatibilityBadge(score) : null
-          const details = breedDetails[breed]
-          const avgDays = details?.avg_days_in_shelter
 
           return (
             <button
@@ -81,9 +72,9 @@ export default function ShelterScreen({ playerName, adopterProfile, breedScores,
               disabled={starting !== null}
             >
               <div className="breed-name">{breed}</div>
-              {avgDays !== undefined && (
+              {avg_days_in_shelter !== undefined && (
                 <div className="breed-days">
-                  Waited avg {Math.round(avgDays)} days in shelter
+                  Waited avg {Math.round(avg_days_in_shelter)} days in shelter
                 </div>
               )}
               {badge && <div className="breed-badge">{badge}</div>}
