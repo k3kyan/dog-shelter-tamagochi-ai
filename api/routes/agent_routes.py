@@ -45,5 +45,5 @@ def care_guide(req: CareGuideRequestSchema):
     player = get_player(req.player_name)
     if not player:
         raise HTTPException(status_code=404, detail='Player not found')
-    answer = retrieve_and_answer(req.question, player['breed'].title())
+    answer = retrieve_and_answer(req.question, player.breed.title())
     return {'answer': answer}

@@ -20,7 +20,7 @@ app.add_middleware(
 
 
 app.include_router(breed_routes.breed_router)
-app.include_router(player_routes.adopter_router)
+app.include_router(player_routes.player_router)
 app.include_router(care_routes.care_router)
 app.include_router(agent_routes.agent_router)
 

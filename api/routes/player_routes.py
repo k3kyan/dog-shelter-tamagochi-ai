@@ -3,7 +3,6 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
-from services.etlpipeline_loader import breed_df
 from services.player_service import get_player, save_player
 from services.trust_system import get_trust_stage 
 from services.etlpipeline_loader import breed_df
