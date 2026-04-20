@@ -1,0 +1,23 @@
+# run setup_db.py
+version: '3.8' #TODO: obsolete? should remove?
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    container_name: dog-shelter-tamagochi-ai-dynamodb
+    ports:
+      - "8001:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+#     # mounts the named volume INTO the container at this path.
+#     # "Take the volume called dynamodb-data" and attatch it at dynamodb-data:/home/dynamodblocal/data INSIDE THE CONTAINER
+#     volumes:
+#       - dynamodb-data:/home/dynamodblocal/data
+# # declares/defines the named volume so the above volumes.dynamodb-data exists and is used
+# # actually i dont need volumes since data resets on container restart. if i remove -inMemory above, dynamodb local would write its database files to /home/dynamodblocal/data INSIDE YOUR LAPTOP (technically inside container but it would still be in ur laptop since docker stores stuff on laptop)
+# # so i would remove -inMemory and use "volumes" if i wanted the dtaa to persist when container is stopped/deleted
+# volumes:
+#   dynamodb-data:
+
+
+#  -sharedDb: all connections share the same database file
+# -inMemory: data lives in memory — fast, no disk writes needed + data resets when container stops, which is fine for dev
+# port 8001→8000: DynamoDB Local runs on 8000 inside the container, but i should map it to 8001 on my machine so it doesn't clash with FastAPI

@@ -8,9 +8,11 @@ TRUST_GAINS = {
     'feed': 7, 
     'groom': 3, 
     'talk': 5,
-    'ignore': -1
+    'ignore': -1,
+    'rest': 0
 }
 
+# TODO-later: could probably put these stage names as enums
 # determines what stage of trust the dog is in based on trust value
 # stage of trust determines whether personality and name are revealed
 # stage of trust also determines the dog's mood towards you
