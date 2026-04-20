@@ -5,17 +5,9 @@ from database.db import get_table
 from dotenv import load_dotenv
 load_dotenv()
 
-from schemas.player_schema import (
-    AdopterProfileSchema, 
-    StartGameSchema,
-    PlayerProfileSchema
-)
+from schemas.player_schema import PlayerProfileSchema
 
-from models.player_models import (
-    StartGameModel,
-    AdopterProfileModel,
-    PlayerProfileModel
-)
+from models.player_models import PlayerProfileModel
 
 
 dynamodb = boto3.resource("dynamodb")
