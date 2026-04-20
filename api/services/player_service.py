@@ -31,6 +31,7 @@ def get_player(player_name: str) -> PlayerProfileSchema | None:
         item = response.get('Item')
         if item is None:
             return None
+        # DynamoDB stores numbers as Decimal — convert back to float/int, then validate with schema
         return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(item).to_floats())
     except Exception as e:
         print(f"Error loading player from DynamoDB: {e}")

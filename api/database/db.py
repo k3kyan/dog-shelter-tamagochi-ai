@@ -25,29 +25,3 @@ def get_table():
 # SO IN FUTURE, MAYBE WILL CHANGE THIS ONCE I DEPLOY THIS APP TO AWS
 # ACTUALLY
 # maybe ill do same thing as my website and make it into an env var switch at the start. will do this later. 
-
-
-# -------------------------------------- HELPER FUNCTIONS --------------------------------------
-
-# helper functions for Decimal conversion
-# DynamoDB stores all numbers as Decimal type
-# Python floats must be converted to Decimal going in, and back to float coming out
-def convert_floats(obj):
-    """Recursively converts floats to Decimal for DynamoDB storage."""
-    if isinstance(obj, float):
-        return Decimal(str(obj))
-    elif isinstance(obj, dict):
-        return {k: convert_floats(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_floats(i) for i in obj]
-    return obj
-
-def convert_decimals(obj):
-    """Recursively converts Decimals back to float for API responses."""
-    if isinstance(obj, Decimal):
-        return float(obj)
-    elif isinstance(obj, dict):
-        return {k: convert_decimals(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_decimals(i) for i in obj]
-    return obj
