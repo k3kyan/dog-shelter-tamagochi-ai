@@ -120,7 +120,7 @@ def match_breeds(profile: AdopterProfileSchema):
     return scores.set_index('breed')['compatibility'].to_dict()
 
 # restore game state for previous players
-@player_router.get('/player/{player_name}')
+@player_router.get('/{player_name}')
 def get_player_state(player_name: str):
     player = get_player(player_name)
     if not player:

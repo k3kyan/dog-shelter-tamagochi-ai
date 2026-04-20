@@ -31,8 +31,7 @@ def get_player(player_name: str) -> PlayerProfileSchema | None:
         item = response.get('Item')
         if item is None:
             return None
-        # DynamoDB stores numbers as Decimal — convert back to float/int, then validate with schema
-        return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(item).to_floats())
+        return PlayerProfileSchema(**item)
     except Exception as e:
         print(f"Error loading player from DynamoDB: {e}")
     
@@ -44,6 +43,7 @@ def save_player(player_data: dict) -> None:
     Saves (creates or overwrites) a player's game state.
     player_data must include player_name as the primary key.
     """
+    # DynamoDB requires floats to be Decimal #TODO:
     table.put_item(Item=PlayerProfileModel(**player_data).to_decimals())
 
 # partial update of specific fields
@@ -69,6 +69,7 @@ def update_player(player_name: str, updates: dict) -> dict:
         ExpressionAttributeValues=expr_values,
         ReturnValues='ALL_NEW',
     )
+    # TODO:
     return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(response['Attributes']).to_floats())
 
 # check if player exists

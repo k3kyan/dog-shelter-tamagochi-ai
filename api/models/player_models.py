@@ -69,6 +69,7 @@ class PlayerProfileModel:
             stranger_friendly=schema.stranger_friendly
         )
 
+    # TODO:
     @classmethod
     def from_dynamo(cls, item: dict):
         return cls(
