@@ -8,6 +8,7 @@ from langchain_groq import ChatGroq
 # from langchain_core.prompts import ChatPromptTemplate
 from langchain.agents import create_agent
 from langchain_core.tools import tool
+# from langgraph.graph.state import CompiledStateGraph # (I didnt actually need to import CompiledStateGraph, but i did it for clarity for myself)
 from services.trust_system import get_trust_stage
 import os, json 
 from dotenv import load_dotenv
@@ -104,8 +105,8 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
 # Agent executor function ------------------------
 # build dog breed agent
 # builds a fresh agent on each /chat request, injecting the current breed data, trust stage, and live stats into the system prompt so every response is accurate
-
-def build_dog_agent(dog_info: dict):
+# (I didnt actually need to import CompiledStateGraph, but i did it for clarity for myself. Python doesn't require method return type annotation) (this also enforces the return type but i dont need it explicitly)
+def build_dog_agent(dog_info: dict): # returns -> CompiledStateGraph
     """
     Builds a trust-aware LangChain agent for the dog chat system.
     dog_info: full dog profile (part of player dict in dynamodb)
