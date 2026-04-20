@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
 from services.dog_agent import build_dog_agent
+from services.rag_chat_agent import retrieve_and_answer
 from services.player_service import get_player
-from schemas.agent_schemas import DogAgentChatRequestSchema
+from schemas.agent_schemas import DogAgentChatRequestSchema, CareGuideRequestSchema
 
 agent_router = APIRouter(
     prefix="/agent",
@@ -35,3 +36,14 @@ def chat(req: DogAgentChatRequestSchema):
     )
     result = executor.invoke({'input': req.message})
     return {'response': result['output']}
+
+
+# RAG pipeline, no game state needed
+# this is a care guide agent (which is a guide that helps answer your questions), completely separate from the dog agent (which is the dog talking to player)
+@agent_router.post('/care-guide')
+def care_guide(req: CareGuideRequestSchema):
+    player = get_player(req.player_name)
+    if not player:
+        raise HTTPException(status_code=404, detail='Player not found')
+    answer = retrieve_and_answer(req.question, player['breed'].title())
+    return {'answer': answer}

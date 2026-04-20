@@ -4,3 +4,7 @@ from pydantic import BaseModel
 class DogAgentChatRequestSchema(BaseModel):
     player_name: str
     message: str
+
+class CareGuideRequestSchema(BaseModel):
+    player_name: str
+    question: str
