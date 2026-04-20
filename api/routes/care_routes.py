@@ -4,10 +4,8 @@ from fastapi.logger import logger
 
 from services.trust_system import TRUST_GAINS, trust_multiplier, get_trust_stage
 from services.player_service import get_player, update_player
-from schemas.care_schema import (
-    CareRequestSchema, 
-    TickRequestSchema
-)
+from schemas.care_schema import CareRequestSchema, TickRequestSchema
+from schemas.player_schema import PlayerProfileUpdateSchema
 
 care_router = APIRouter(
     prefix="/care",
@@ -27,13 +25,11 @@ def perform_care(req: CareRequestSchema):
     # calculate trust gain using breed's friendliness scores
     gain = round(
         TRUST_GAINS.get(req.action, 2) *
-        trust_multiplier(
-            player['affectionate'],
-            player['stranger_friendly']
-        ), 1
+        trust_multiplier(player.affectionate, player.stranger_friendly),
+        1
     )
     # TODO:
-    new_trust = min(100.0, round(player['trust'] + gain, 1))
+    new_trust = min(100.0, round(player.trust + gain, 1))
 
     # calculate stat changes per action
     stat_changes = {
@@ -44,17 +40,19 @@ def perform_care(req: CareRequestSchema):
         'talk':  {'happiness': 5.0},
     }.get(req.action, {})
 
-    # apply stat changes with bounds (0-100)
+    # TODO:
     updates = {'trust': new_trust}
     for stat, delta in stat_changes.items():
-        current = player.get(stat, 50.0)
+        current = getattr(player, stat, 50.0)
         updates[stat] = max(0.0, min(100.0, current + delta))
 
     # save to DynamoDB and return updated state
-    updated = update_player(req.player_name, updates)
-    updated['trust_stage'] = get_trust_stage(new_trust)
-    updated['trust_gain'] = gain
-    return updated
+    updated = update_player(req.player_name, PlayerProfileUpdateSchema(**updates))
+    return {
+        **updated.model_dump(),
+        'trust_stage': get_trust_stage(new_trust),
+        'trust_gain': gain,
+    }
 
 
 # drains stats over time, called by frontend timer
@@ -66,26 +64,24 @@ def tick(req: TickRequestSchema):
 
     # drain rates computed from real breed data
     # AKC energy_level 0.2-1.0 × 8 = 1.6-8 pts per tick
-    energy_drain = round(player['energy_level'] * 8, 1)
-
+    energy_drain    = round(player.energy_level * 8, 1)
     # DogTime weight_gain_risk 1-5 ÷ 5 × 6 = 1.2-6 pts per tick
-    hunger_gain  = round((player['weight_gain_risk'] / 5) * 6, 1)
-
-    # base happiness decay
+    hunger_gain     = round((player.weight_gain_risk / 5) * 6, 1)
     happiness_drain = 2.0
 
     updates = {
-        'energy':    max(0.0, player['energy'] - energy_drain),
-        'hunger':    min(100.0, player['hunger'] + hunger_gain),
-        'happiness': max(0.0, player['happiness'] - happiness_drain),
+        'energy':    max(0.0, player.energy - energy_drain),
+        'hunger':    min(100.0, player.hunger + hunger_gain),
+        'happiness': max(0.0, player.happiness - happiness_drain),
     }
 
     # trust penalty if stats are critically low at withdrawn stage
-    trust_stage = get_trust_stage(player['trust'])['stage']
-    if trust_stage == 'withdrawn':
+    if get_trust_stage(player.trust)['stage'] == 'withdrawn':
         if any(updates[s] < 20 for s in updates):
-            updates['trust'] = max(5.0, player['trust'] - 1.0)
+            updates['trust'] = max(5.0, player.trust - 1.0)
 
-    updated = update_player(req.player_name, updates)
-    updated['trust_stage'] = get_trust_stage(updated['trust'])
-    return updated
+    updated = update_player(req.player_name, PlayerProfileUpdateSchema(**updates))
+    return {
+        **updated.model_dump(),
+        'trust_stage': get_trust_stage(updated.trust),
+    }
