@@ -41,6 +41,7 @@ def perform_care(req: CareRequestSchema):
     }.get(req.action, {})
 
     # TODO:
+    # apply stat changes with bounds (0-100)
     updates = {'trust': new_trust}
     for stat, delta in stat_changes.items():
         current = getattr(player, stat, 50.0)
