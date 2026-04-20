@@ -1,6 +1,7 @@
 import os
 import boto3
-from database.db import get_table, convert_decimals, convert_floats
+from decimal import Decimal
+from database.db import get_table
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -38,8 +39,7 @@ def get_player(player_name: str) -> PlayerProfileSchema | None:
         item = response.get('Item')
         if item is None:
             return None
-        # DynamoDB stores numbers as Decimal — convert back to float/int, then validate with schema
-        return PlayerProfileSchema(**convert_decimals(item))
+        return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(item).to_floats())
     except Exception as e:
         print(f"Error loading player from DynamoDB: {e}")
     
@@ -51,9 +51,7 @@ def save_player(player_data: dict) -> None:
     Saves (creates or overwrites) a player's game state.
     player_data must include player_name as the primary key.
     """
-    # DynamoDB requires floats to be Decimal
-    item = convert_floats(player_data)
-    table.put_item(Item=item)
+    table.put_item(Item=PlayerProfileModel(**player_data).to_decimals())
 
 # partial update of specific fields
 # ex: just trust + hunger after a care action
@@ -68,7 +66,7 @@ def update_player(player_name: str, updates: dict) -> dict:
         f'#{k} = :{k}' for k in updates
     )
     expr_names  = {f'#{k}': k for k in updates}
-    expr_values = {f':{k}': convert_floats({k: v})[k]
+    expr_values = {f':{k}': Decimal(str(v)) if isinstance(v, float) else v
                 for k, v in updates.items()}
 
     response = table.update_item(
@@ -78,7 +76,7 @@ def update_player(player_name: str, updates: dict) -> dict:
         ExpressionAttributeValues=expr_values,
         ReturnValues='ALL_NEW',
     )
-    return convert_decimals(response['Attributes'])
+    return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(response['Attributes']).to_floats())
 
 # check if player exists
 def player_exists(player_name: str) -> bool:

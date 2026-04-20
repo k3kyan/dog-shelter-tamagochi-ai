@@ -1,3 +1,4 @@
+from decimal import Decimal
 from schemas.player_schema import StartGameSchema, AdopterProfileSchema, PlayerProfileSchema
 
 class StartGameModel:
@@ -151,8 +152,30 @@ class PlayerProfileModel:
             stranger_friendly=schema.stranger_friendly
         )
 
-    # convert dynamodb Decimals to python floats
-    def to_floats(self):
+    @classmethod
+    def from_dynamo(cls, item: dict):
+        return cls(
+            player_name=item['player_name'],
+            breed=item['breed'],
+            adopter_profile=item['adopter_profile'],
+            hunger=float(item['hunger']),
+            happiness=float(item['happiness']),
+            energy=float(item['energy']),
+            health=float(item['health']),
+            trust=float(item['trust']),
+            avg_days_in_shelter=float(item['avg_days_in_shelter']),
+            personality_type=item['personality_type'],
+            temperament=item['temperament'],
+            energy_level=float(item['energy_level']),
+            trainability=float(item['trainability']),
+            grooming_frequency=float(item['grooming_frequency']),
+            weight_gain_risk=float(item['weight_gain_risk']),
+            exercise_needs=float(item['exercise_needs']),
+            affectionate=int(item['affectionate']),
+            stranger_friendly=int(item['stranger_friendly']),
+        )
+
+    def to_floats(self) -> dict:
         return {
             "player_name": self.player_name,
             "breed": self.breed,
@@ -171,28 +194,27 @@ class PlayerProfileModel:
             "weight_gain_risk": self.weight_gain_risk,
             "exercise_needs": self.exercise_needs,
             "affectionate": self.affectionate,
-            "stranger_friendly": self.stranger_friendly
+            "stranger_friendly": self.stranger_friendly,
         }
 
-    # convert python floats to Decimals
-    def to_decimals(self):
-        return PlayerProfileModel(
-            player_name=self.player_name,
-            breed=self.breed,
-            adopter_profile=self.adopter_profile,
-            hunger=self.hunger,
-            happiness=self.happiness,
-            energy=self.energy,
-            health=self.health,
-            trust=self.trust,
-            avg_days_in_shelter=self.avg_days_in_shelter,
-            personality_type=self.personality_type,
-            temperament=self.temperament,
-            energy_level=self.energy_level,
-            trainability=self.trainability,
-            grooming_frequency=self.grooming_frequency,
-            weight_gain_risk=self.weight_gain_risk,
-            exercise_needs=self.exercise_needs,
-            affectionate=self.affectionate,
-            stranger_friendly=self.stranger_friendly
-        )
+    def to_decimals(self) -> dict:
+        return {
+            "player_name": self.player_name,
+            "breed": self.breed,
+            "adopter_profile": self.adopter_profile,
+            "hunger": Decimal(str(self.hunger)),
+            "happiness": Decimal(str(self.happiness)),
+            "energy": Decimal(str(self.energy)),
+            "health": Decimal(str(self.health)),
+            "trust": Decimal(str(self.trust)),
+            "avg_days_in_shelter": Decimal(str(self.avg_days_in_shelter)),
+            "personality_type": self.personality_type,
+            "temperament": self.temperament,
+            "energy_level": Decimal(str(self.energy_level)),
+            "trainability": Decimal(str(self.trainability)),
+            "grooming_frequency": Decimal(str(self.grooming_frequency)),
+            "weight_gain_risk": Decimal(str(self.weight_gain_risk)),
+            "exercise_needs": Decimal(str(self.exercise_needs)),
+            "affectionate": self.affectionate,
+            "stranger_friendly": self.stranger_friendly,
+        }
