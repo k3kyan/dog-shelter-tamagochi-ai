@@ -61,6 +61,7 @@ def start_game(req: StartGameSchema):
         exercise_needs=float(breed_data.get('exercise_needs', 3)),
         affectionate=int(breed_data.get('affectionate', 3)),
         stranger_friendly=int(breed_data.get('stranger_friendly', 3)),
+        description=breed_data.get('description', ''),
     )
 
     save_player(player.model_dump())

@@ -22,7 +22,8 @@ class PlayerProfileModel:
         weight_gain_risk: float,
         exercise_needs: float,
         affectionate: int,
-        stranger_friendly: int
+        stranger_friendly: int,
+        description: str = ""
     ):
         self.player_name=player_name
         self.breed=breed
@@ -42,6 +43,7 @@ class PlayerProfileModel:
         self.exercise_needs=exercise_needs
         self.affectionate=affectionate
         self.stranger_friendly=stranger_friendly
+        self.description=description
 
 
     # TODO:
@@ -89,6 +91,7 @@ class PlayerProfileModel:
             "exercise_needs": Decimal(str(self.exercise_needs)),
             "affectionate": self.affectionate,
             "stranger_friendly": self.stranger_friendly,
+            "description": self.description,
         }
     
     # dont need to_floats since since Pydantic's coercion handles both read paths
