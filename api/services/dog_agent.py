@@ -4,8 +4,9 @@
 
 # TODO: 
 from langchain_groq import ChatGroq
-from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate
+# from langchain.agents import create_tool_calling_agent, AgentExecutor
+# from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import create_agent
 from langchain_core.tools import tool
 from services.trust_system import get_trust_stage
 import os, json 
@@ -104,7 +105,7 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
 # build dog breed agent
 # builds a fresh agent on each /chat request, injecting the current breed data, trust stage, and live stats into the system prompt so every response is accurate
 
-def build_dog_agent(dog_info: dict) -> AgentExecutor:
+def build_dog_agent(dog_info: dict):
     """
     Builds a trust-aware LangChain agent for the dog chat system.
     dog_info: full dog profile (part of player dict in dynamodb)
@@ -141,33 +142,44 @@ def build_dog_agent(dog_info: dict) -> AgentExecutor:
         health=stats.get('health', 90),
     )
 
-    # here we are building a structured input for a chat prompt template with placeholders {}
-    # .from_messages() takes a list of "messages" (system, human, ai) and turms them into a reusable prompt template that a chat model can understand
-    # these {} fields are injected later like when u do
-    # messages = prompt.format_messages(input="I want to play with my dog")
-    # -- '{agent_scratchpad}' is where LangChain writes its intermediate reasoning for calling/using tools and what results the tools gave, etc. its internal chain of thoughts between steps. like working memory
-    # it has to be in the prompt template because LangChain's create_tool_calling_agent requires a placeholder in the prompt template where it can inject this train of thought. otherwise langchain throws an error.
-    # -- 'placeholder' is a LangChain message type that tells langchain to insert whatever content you need in {agent_scratchpad} at runtime
-    # placeholder agent_scratchpad is only used if agent calls the tool, which it then will need someplace to reason
-    # SystemMessages is the system prompt: the instructions and context you give the LLM before any conversation starts. sets the agent's roleplaying in a way
-    # HumanMessage is what the player's actual message is, what they typed into the chat box. like when u call
-    # executor.invoke({'input': req.message})
-    prompt = ChatPromptTemplate.from_messages([
-        ('system', system_content),
-        ('human','{input}'),
-        ('placeholder', '{agent_scratchpad}')
-    ])
+    # TODO: OUTDATED INFO: i had to update models.... 
+    # # here we are building a structured input for a chat prompt template with placeholders {}
+    # # .from_messages() takes a list of "messages" (system, human, ai) and turms them into a reusable prompt template that a chat model can understand
+    # # these {} fields are injected later like when u do
+    # # messages = prompt.format_messages(input="I want to play with my dog")
+    # # -- '{agent_scratchpad}' is where LangChain writes its intermediate reasoning for calling/using tools and what results the tools gave, etc. its internal chain of thoughts between steps. like working memory
+    # # it has to be in the prompt template because LangChain's create_tool_calling_agent requires a placeholder in the prompt template where it can inject this train of thought. otherwise langchain throws an error.
+    # # -- 'placeholder' is a LangChain message type that tells langchain to insert whatever content you need in {agent_scratchpad} at runtime
+    # # placeholder agent_scratchpad is only used if agent calls the tool, which it then will need someplace to reason
+    # # SystemMessages is the system prompt: the instructions and context you give the LLM before any conversation starts. sets the agent's roleplaying in a way
+    # # HumanMessage is what the player's actual message is, what they typed into the chat box. like when u call
+    # # executor.invoke({'input': req.message})
+    # prompt = ChatPromptTemplate.from_messages([
+    #     ('system', system_content),
+    #     ('human','{input}'),
+    #     ('placeholder', '{agent_scratchpad}')
+    # ])
 
     # a list of tools/functions the agent is allowed to call (each tool needs a name, description, and input schema)
     tools = [suggest_activity]
 
-    # create an LLM agent that can decide when to call tools (this is just a plan of how to think tho, doesnt actually execute anything)
-    # returns an agent object that takes user input, uses prompt to format it, sends it to llm, lets llm decide whether to respond directly or to call one of the [tools], then executes tools if needed and loops until a final answer is produced
-    agent = create_tool_calling_agent(llm, tools, prompt)
+    # TODO: OUTDATED INFO: i had to update models.... 
+    # # create an LLM agent that can decide when to call tools (this is just a plan of how to think tho, doesnt actually execute anything)
+    # # returns an agent object that takes user input, uses prompt to format it, sends it to llm, lets llm decide whether to respond directly or to call one of the [tools], then executes tools if needed and loops until a final answer is produced
+    # agent = create_tool_calling_agent(llm, tools, prompt)
 
-    # returns an executor (executes the "agent" variable (the plan/the brain))
-    # AgentExecutor runs the agent loop (actually executes the agent)
-    # verbose=True lets u see when the agent decides to call tools, good for debugging
-    # ex: agent_executor.invoke({"input": "Do you wanna go on a walk?"})
-    # agent = brain/talk, tools = abilities so it can actually do stuff, AgentExecutor = operator that actually carries out plan and produces answers
-    return AgentExecutor(agent=agent, tools=tools, verbose=True)
+    # # returns an executor (executes the "agent" variable (the plan/the brain))
+    # # AgentExecutor runs the agent loop (actually executes the agent)
+    # # verbose=True lets u see when the agent decides to call tools, good for debugging
+    # # ex: agent_executor.invoke({"input": "Do you wanna go on a walk?"})
+    # # agent = brain/talk, tools = abilities so it can actually do stuff, AgentExecutor = operator that actually carries out plan and produces answers
+    # return AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+    # TODO:
+    # LangChain 1.x: create_agent replaces create_tool_calling_agent + AgentExecutor
+    # system_prompt replaces ChatPromptTemplate, tool loop is handled internally by LangGraph
+    return create_agent(
+        model=llm,
+        tools=tools,
+        system_prompt=system_content
+    )

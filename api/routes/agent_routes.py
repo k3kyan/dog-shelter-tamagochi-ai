@@ -34,8 +34,8 @@ def chat(req: DogAgentChatRequestSchema):
     executor = build_dog_agent(
         dog_info=player.model_dump()
     )
-    result = executor.invoke({'input': req.message})
-    return {'response': result['output']}
+    result = executor.invoke({'messages': [('human', req.message)]})
+    return {'response': result['messages'][-1].content}
 
 
 # RAG pipeline, no game state needed
