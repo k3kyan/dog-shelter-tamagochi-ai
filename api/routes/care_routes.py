@@ -1,7 +1,6 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
-from services.etlpipeline_loader import breed_df
 
 from services.trust_system import TRUST_GAINS, trust_multiplier, get_trust_stage
 from services.player_service import get_player, update_player
@@ -14,9 +13,6 @@ care_router = APIRouter(
     prefix="/care",
     tags=["care", "trust_system"]
 )
-
-# TODO: check, hopefully the etlpipeline_loader works?
-# breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
 # how user's action affect's a dog's trust level based on the breed's personality
 # used for updating/calculating trust
@@ -36,6 +32,7 @@ def perform_care(req: CareRequestSchema):
             player['stranger_friendly']
         ), 1
     )
+    # TODO:
     new_trust = min(100.0, round(player['trust'] + gain, 1))
 
     # calculate stat changes per action
