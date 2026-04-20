@@ -15,19 +15,19 @@ class StartGameSchema(BaseModel):
 class PlayerProfileSchema(BaseModel):
     player_name: str
     breed: str
-    adopter_profile: str
-    hunger: str
-    happiness: str
-    energy: str
-    health: str
-    trust: str
-    avg_days_in_shelter: str
+    adopter_profile: dict
+    hunger: float
+    happiness: float
+    energy: float
+    health: float
+    trust: float
+    avg_days_in_shelter: float
     personality_type: str
     temperament: str
-    energy_level: str
-    trainability: str
-    grooming_frequency: str
-    weight_gain_risk: str
-    exercise_needs: str
-    affectionate: str
-    stranger_friendly: str
+    energy_level: float
+    trainability: float
+    grooming_frequency: float
+    weight_gain_risk: float
+    exercise_needs: float
+    affectionate: int
+    stranger_friendly: int

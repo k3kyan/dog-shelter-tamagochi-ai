@@ -26,7 +26,7 @@ else:
 
 
 # fetches a player's full game state
-def get_player(player_name: str) -> dict | None:
+def get_player(player_name: str) -> PlayerProfileSchema | None:
     """
     Fetches a player's game state from DynamoDB.
     Returns None if player doesn't exist.
@@ -38,8 +38,8 @@ def get_player(player_name: str) -> dict | None:
         item = response.get('Item')
         if item is None:
             return None
-        # DynamoDB stores numbers as Decimal — convert back to float/int
-        return convert_decimals(item) #TODO???? figure out what the game stats are omg wtf
+        # DynamoDB stores numbers as Decimal — convert back to float/int, then validate with schema
+        return PlayerProfileSchema(**convert_decimals(item))
     except Exception as e:
         print(f"Error loading player from DynamoDB: {e}")
     

@@ -9,8 +9,9 @@ from services.trust_system import get_trust_stage
 from services.etlpipeline_loader import breed_df
 
 from schemas.player_schema import (
-    AdopterProfileSchema, 
-    StartGameSchema
+    AdopterProfileSchema,
+    StartGameSchema,
+    PlayerProfileSchema
 )
 
 player_router = APIRouter(
@@ -36,36 +37,36 @@ def start_game(req: StartGameSchema):
     breed_data = row.iloc[0].to_dict()
 
     # build initial player game state
-    player = {
-        'player_name': req.player_name,
-        'breed': req.breed.upper(),
-        'adopter_profile': req.adopter_profile,
+    player = PlayerProfileSchema(
+        player_name=req.player_name,
+        breed=req.breed.upper(),
+        adopter_profile=req.adopter_profile,
 
         # game stats — all start at reasonable values
-        'hunger': 70.0,
-        'happiness': 70.0,
-        'energy': 80.0,
-        'health': 90.0,
+        hunger=70.0,
+        happiness=70.0,
+        energy=80.0,
+        health=90.0,
 
         # trust initialized from real shelter data
-        'trust': float(breed_data.get('starting_trust', 30.0)),
+        trust=float(breed_data.get('starting_trust', 30.0)),
 
         # breed data to show to player later
-        'avg_days_in_shelter': float(breed_data.get('avg_days_in_shelter', 0)),
-        'personality_type': breed_data.get('personality_type', ''),
-        'temperament': breed_data.get('temperament', ''),
-        'energy_level': float(breed_data.get('energy_level', 0.5)),
-        'trainability': float(breed_data.get('trainability', 0.5)),
-        'grooming_frequency': float(breed_data.get('grooming_frequency', 0.5)),
-        'weight_gain_risk': float(breed_data.get('weight_gain_risk', 3)),
-        'exercise_needs': float(breed_data.get('exercise_needs', 3)),
-        'affectionate': int(breed_data.get('affectionate', 3)),
-        'stranger_friendly': int(breed_data.get('stranger_friendly', 3)),
-    }
+        avg_days_in_shelter=float(breed_data.get('avg_days_in_shelter', 0)),
+        personality_type=breed_data.get('personality_type', ''),
+        temperament=breed_data.get('temperament', ''),
+        energy_level=float(breed_data.get('energy_level', 0.5)),
+        trainability=float(breed_data.get('trainability', 0.5)),
+        grooming_frequency=float(breed_data.get('grooming_frequency', 0.5)),
+        weight_gain_risk=float(breed_data.get('weight_gain_risk', 3)),
+        exercise_needs=float(breed_data.get('exercise_needs', 3)),
+        affectionate=int(breed_data.get('affectionate', 3)),
+        stranger_friendly=int(breed_data.get('stranger_friendly', 3)),
+    )
 
-    save_player(player)
+    save_player(player.model_dump())
 
-    # return full player info bc the frontend uses it to initialize its display with these info 
+    # return full player info bc the frontend uses it to initialize its display with these info
     return player
 
 
@@ -124,5 +125,6 @@ def get_player_state(player_name: str):
     player = get_player(player_name)
     if not player:
         raise HTTPException(status_code=404, detail='Player not found')
-    player['trust_stage'] = get_trust_stage(player['trust'])
-    return player
+    result = player.model_dump()
+    result['trust_stage'] = get_trust_stage(player.trust)
+    return result

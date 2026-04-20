@@ -15,6 +15,7 @@ class StartGameModel:
 
     # TODO:
     # create a model from schema
+    @classmethod
     def to_model(cls, schema: StartGameSchema):
         return cls(
             player_name=schema.player_name,
@@ -55,6 +56,7 @@ class AdopterProfileModel:
 
     # TODO:
     # create a model from schema
+    @classmethod
     def to_model(cls, schema: AdopterProfileSchema):
         return cls(
             living_situation=schema.living_situation,
@@ -74,7 +76,7 @@ class AdopterProfileModel:
 
     # convert python floats to Decimals
     def to_decimals(self):
-        return StartGameModel(
+        return AdopterProfileModel(
             living_situation=self.living_situation,
             climate=self.climate,
             time_home=self.time_home,
@@ -87,22 +89,22 @@ class PlayerProfileModel:
         self,
         player_name: str,
         breed: str,
-        adopter_profile: str,
-        hunger: str,
-        happiness: str,
-        energy: str,
-        health: str,
-        trust: str,
-        avg_days_in_shelter: str,
+        adopter_profile: dict,
+        hunger: float,
+        happiness: float,
+        energy: float,
+        health: float,
+        trust: float,
+        avg_days_in_shelter: float,
         personality_type: str,
         temperament: str,
-        energy_level: str,
-        trainability: str,
-        grooming_frequency: str,
-        weight_gain_risk: str,
-        exercise_needs: str,
-        affectionate: str,
-        stranger_friendly: str
+        energy_level: float,
+        trainability: float,
+        grooming_frequency: float,
+        weight_gain_risk: float,
+        exercise_needs: float,
+        affectionate: int,
+        stranger_friendly: int
     ):
         self.player_name=player_name
         self.breed=breed
@@ -126,6 +128,7 @@ class PlayerProfileModel:
 
     # TODO:
     # create a model from schema
+    @classmethod
     def to_model(cls, schema: PlayerProfileSchema):
         return cls(
             player_name=schema.player_name,
