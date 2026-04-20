@@ -653,6 +653,26 @@ h1 {
   font-size: 12px;
 }
 
+.care-guide-source-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.care-guide-source-list a {
+  font-size: 12px;
+  color: var(--dog-primary);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.care-guide-source-list a:hover {
+  text-decoration: underline;
+}
+
 /* === TOASTS === */
 .toasts {
   position: fixed;
