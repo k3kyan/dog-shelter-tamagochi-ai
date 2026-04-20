@@ -52,11 +52,11 @@ def start_game(req: StartGameSchema):
 
         # breed data to show to player later
         avg_days_in_shelter=float(breed_data.get('avg_days_in_shelter', 0)),
-        personality_type=breed_data.get('personality_type', ''),
+        personality_type=breed_data.get('group', ''), #TODO: temp, fill in when i do the kmeans clustering
         temperament=breed_data.get('temperament', ''),
-        energy_level=float(breed_data.get('energy_level', 0.5)),
-        trainability=float(breed_data.get('trainability', 0.5)),
-        grooming_frequency=float(breed_data.get('grooming_frequency', 0.5)),
+        energy_level=float(breed_data.get('energy_level_value', 0.5)),
+        trainability=float(breed_data.get('trainability_value', 0.5)),
+        grooming_frequency=float(breed_data.get('grooming_frequency_value', 0.5)),
         weight_gain_risk=float(breed_data.get('weight_gain_risk', 3)),
         exercise_needs=float(breed_data.get('exercise_needs', 3)),
         affectionate=int(breed_data.get('affectionate', 3)),
