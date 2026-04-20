@@ -4,8 +4,10 @@ from fastapi.logger import logger
 from services.etlpipeline_loader import breed_df
 
 from services.trust_system import TRUST_GAINS, trust_multiplier, get_trust_stage
+from services.player_service import get_player, update_player
 from schemas.care_schema import (
-    CareRequestSchema
+    CareRequestSchema, 
+    TickRequestSchema
 )
 
 care_router = APIRouter(
@@ -19,29 +21,74 @@ care_router = APIRouter(
 # how user's action affect's a dog's trust level based on the breed's personality
 # used for updating/calculating trust
 # payload incoming request data must be passing in json in format of CareRequestSchema
+#  backend fetches + updates game state itself
 @care_router.post('/')
 def perform_care(req: CareRequestSchema):
-    # find the breed in the parquet (converts to uppercase to match stored format) #TODO:
-    row = breed_df[breed_df['breed'] == req.breed.upper()]
-    if row.empty:
-        raise HTTPException(status_code=404, detail='Breed not found')
-    
-    # get personality traits
-    # row['affectionate'] gets the column (returns a pandas Series) (kinda confusing namewise here)
-    # .iloc[0] gives the value from the first row at position index 0 ("integer location")
-    # pandas returns a dataframe, not a single value, so i have to extract the value manually
-    aff = int(row['affectionate'].iloc[0])
-    sf = int(row['stranger_friendly'].iloc[0])
+    player = get_player(req.player_name)
+    if not player:
+        raise HTTPException(status_code=404, detail='Player not found')
 
-    # calculate trust gain
-    # base action value x personality friendliness multiplier
-    gain = round(TRUST_GAINS.get(req.action, 2) * trust_multiplier(aff, sf), 1)
+    # calculate trust gain using breed's friendliness scores
+    gain = round(
+        TRUST_GAINS.get(req.action, 2) *
+        trust_multiplier(
+            player['affectionate'],
+            player['stranger_friendly']
+        ), 1
+    )
+    new_trust = min(100.0, round(player['trust'] + gain, 1))
 
-    # update trust score (caps between 0, 100)
-    value = round(req.current_trust + gain, 1)
-    new_trust = max(0.0, min(100.0, value))
+    # calculate stat changes per action
+    stat_changes = {
+        'feed':  {'hunger': -30.0},   # hunger is 0=full, 100=starving
+        'walk':  {'energy': -15.0, 'happiness': 20.0},
+        'groom': {'happiness': 15.0},
+        'play':  {'happiness': 25.0, 'energy': -10.0},
+        'talk':  {'happiness': 5.0},
+    }.get(req.action, {})
+
+    # apply stat changes with bounds (0-100)
+    updates = {'trust': new_trust}
+    for stat, delta in stat_changes.items():
+        current = player.get(stat, 50.0)
+        updates[stat] = max(0.0, min(100.0, current + delta))
+
+    # save to DynamoDB and return updated state
+    updated = update_player(req.player_name, updates)
+    updated['trust_stage'] = get_trust_stage(new_trust)
+    updated['trust_gain'] = gain
+    return updated
 
 
-    return {'new_trust': new_trust,  #updated trust value
-            'trust_gain': gain, #how much the trust increased
-            'trust_stage': get_trust_stage(new_trust)}
+# drains stats over time, called by frontend timer
+@care_router.post('/tick')
+def tick(req: TickRequestSchema):
+    player = get_player(req.player_name)
+    if not player:
+        raise HTTPException(status_code=404, detail='Player not found')
+
+    # drain rates computed from real breed data
+    # AKC energy_level 0.2-1.0 × 8 = 1.6-8 pts per tick
+    energy_drain = round(player['energy_level'] * 8, 1)
+
+    # DogTime weight_gain_risk 1-5 ÷ 5 × 6 = 1.2-6 pts per tick
+    hunger_gain  = round((player['weight_gain_risk'] / 5) * 6, 1)
+
+    # base happiness decay
+    happiness_drain = 2.0
+
+    updates = {
+        'energy':    max(0.0, player['energy'] - energy_drain),
+        'hunger':    min(100.0, player['hunger'] + hunger_gain),
+        'happiness': max(0.0, player['happiness'] - happiness_drain),
+    }
+
+    # trust penalty if stats are critically low at withdrawn stage
+    trust_stage = get_trust_stage(player['trust'])['stage']
+    if trust_stage == 'withdrawn':
+        if any(updates[s] < 20 for s in updates):
+            updates['trust'] = max(5.0, player['trust'] - 1.0)
+
+    updated = update_player(req.player_name, updates)
+    updated['trust_stage'] = get_trust_stage(updated['trust'])
+    return updated
