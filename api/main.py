@@ -13,6 +13,7 @@ origins = [
 ]
 app.add_middleware(
     CORSMiddleware, 
+    # allow_origins=origins, #if i only wanted to allow specific urls to access
     allow_origins=["*"],
     allow_methods=["*"], 
     allow_headers=["*"]
