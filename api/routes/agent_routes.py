@@ -32,7 +32,7 @@ def chat(req: DogAgentChatRequestSchema):
     # build_dog_agent() returns AgentExecutor object yay!
     # player dict also holds the info for their dog, just confusing wording, i could prob improve in future eh
     executor = build_dog_agent(
-        dog_info=player
+        dog_info=player.model_dump()
     )
     result = executor.invoke({'input': req.message})
     return {'response': result['output']}

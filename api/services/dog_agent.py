@@ -110,6 +110,7 @@ def build_dog_agent(dog_info: dict) -> AgentExecutor:
     dog_info: full dog profile (part of player dict in dynamodb)
     """
     # build stats dict for agent system prompt injection
+    # dog_info[] is better for required fields, no fallback
     stats = {
         'hunger':    dog_info['hunger'],
         'happiness': dog_info['happiness'],
