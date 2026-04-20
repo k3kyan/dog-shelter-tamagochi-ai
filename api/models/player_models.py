@@ -45,32 +45,6 @@ class PlayerProfileModel:
         self.stranger_friendly=stranger_friendly
         self.description=description
 
-
-    # TODO:
-    # create a model from schema
-    @classmethod
-    def to_model(cls, schema: PlayerProfileSchema):
-        return cls(
-            player_name=schema.player_name,
-            breed=schema.breed,
-            adopter_profile=schema.adopter_profile,
-            hunger=schema.hunger,
-            happiness=schema.happiness,
-            energy=schema.energy,
-            health=schema.health,
-            trust=schema.trust,
-            avg_days_in_shelter=schema.avg_days_in_shelter,
-            personality_type=schema.personality_type,
-            temperament=schema.temperament,
-            energy_level=schema.energy_level,
-            trainability=schema.trainability,
-            grooming_frequency=schema.grooming_frequency,
-            weight_gain_risk=schema.weight_gain_risk,
-            exercise_needs=schema.exercise_needs,
-            affectionate=schema.affectionate,
-            stranger_friendly=schema.stranger_friendly
-        )
-
     def to_decimals(self) -> dict:
         return {
             "player_name": self.player_name,
