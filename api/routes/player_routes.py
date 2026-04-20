@@ -15,7 +15,7 @@ from schemas.player_schema import (
 
 player_router = APIRouter(
     prefix="/player",
-    tags=["player", "adopter", "startgame", "start"]
+    tags=["player"]
 )
 
 # create new player in dynamodb
