@@ -34,6 +34,7 @@ def chat(req: DogAgentChatRequestSchema):
     executor = build_dog_agent(
         dog_info=player.model_dump()
     )
+    # TODO:
     result = executor.invoke({'messages': [('human', req.message)]})
     return {'response': result['messages'][-1].content}
 
