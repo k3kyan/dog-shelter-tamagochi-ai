@@ -5,7 +5,7 @@ from database.db import get_table
 from dotenv import load_dotenv
 load_dotenv()
 
-from schemas.player_schema import PlayerProfileSchema
+from schemas.player_schema import PlayerProfileSchema, PlayerProfileUpdateSchema
 
 from models.player_models import PlayerProfileModel
 
@@ -48,19 +48,16 @@ def save_player(player_data: dict) -> None:
 
 # partial update of specific fields
 # ex: just trust + hunger after a care action
-def update_player(player_name: str, updates: dict) -> dict:
+def update_player(player_name: str, updates: PlayerProfileUpdateSchema) -> PlayerProfileSchema:
     """
     Updates specific fields on a player record.
     Returns the full updated item.
-    updates: dict of field names to new values
     """
-    # build UpdateExpression dynamically from updates dict
-    update_expr = 'SET ' + ', '.join(
-        f'#{k} = :{k}' for k in updates
-    )
-    expr_names  = {f'#{k}': k for k in updates}
+    fields = updates.model_dump(exclude_none=True)
+    update_expr = 'SET ' + ', '.join(f'#{k} = :{k}' for k in fields)
+    expr_names  = {f'#{k}': k for k in fields}
     expr_values = {f':{k}': Decimal(str(v)) if isinstance(v, float) else v
-                for k, v in updates.items()}
+                   for k, v in fields.items()}
 
     response = table.update_item(
         Key={'player_name': player_name},
@@ -69,8 +66,7 @@ def update_player(player_name: str, updates: dict) -> dict:
         ExpressionAttributeValues=expr_values,
         ReturnValues='ALL_NEW',
     )
-    # TODO:
-    return PlayerProfileSchema(**PlayerProfileModel.from_dynamo(response['Attributes']).to_floats())
+    return PlayerProfileSchema(**response['Attributes'])
 
 # check if player exists
 def player_exists(player_name: str) -> bool:

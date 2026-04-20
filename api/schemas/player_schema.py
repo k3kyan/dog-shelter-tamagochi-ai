@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 # for validating/typing API request data, not storing stuff
 class AdopterProfileSchema(BaseModel):
@@ -31,3 +32,17 @@ class PlayerProfileSchema(BaseModel):
     exercise_needs: float
     affectionate: int
     stranger_friendly: int
+
+class PlayerProfileUpdateSchema(BaseModel):
+    hunger: Optional[float] = None
+    happiness: Optional[float] = None
+    energy: Optional[float] = None
+    health: Optional[float] = None
+    trust: Optional[float] = None
+    energy_level: Optional[float] = None
+    trainability: Optional[float] = None
+    grooming_frequency: Optional[float] = None
+    weight_gain_risk: Optional[float] = None
+    exercise_needs: Optional[float] = None
+    affectionate: Optional[int] = None
+    stranger_friendly: Optional[int] = None
