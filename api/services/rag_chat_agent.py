@@ -41,6 +41,14 @@ def retrieve_and_answer(question: str, breed: str):
     context_docs = results['documents'][0] #need [0] bc .query returns lists of lists. outer list is responses per query, inner list is the actual responses for individual queries
     context = '\n\n'.join(context_docs) #combines context_docs, which is a list[], into one string to pass into prompt. Choosing to separate each chunk with \n\n bc using a comma or period or single space etc wouldn't clearly show they are different chunks. helps LLM indicate these are separate chunks and treats each chunk independently instead of all one thought/piece of info
 
+    metadatas = results['metadatas'][0]
+    # deduplicate source URLs. multiple chunks might come from same article
+    # dict.fromkeys() removes duplicates while preserving order
+    sources = list(dict.fromkeys(
+        m['source_url'] for m in metadatas
+        if m.get('source_url')
+    ))
+    
     # 3. generate informed response based on retrieved context
     prompt = f"""You are a helpful dog care advisor.
     A player is caring for a {breed} and asked: "{question}"
@@ -55,4 +63,7 @@ def retrieve_and_answer(question: str, breed: str):
     # referenced embed.py generate_context()
     response = llm.invoke(prompt)
     cleaned_response = response.content.strip() #in case theres whitespace before/after string, since llm's frequently return texts with trailing whitespace
-    return cleaned_response
+    return {
+        'answer': cleaned_response,
+        'sources': sources
+    }
