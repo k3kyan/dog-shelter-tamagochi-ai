@@ -29,7 +29,7 @@ export default function CareGuide({ playerName, breed, isOpen, onClose }) {
     <div className="care-guide-overlay" onClick={onClose}>
       <div className="care-guide-panel" onClick={e => e.stopPropagation()}>
         <div className="care-guide-header">
-          <h2>📖 Care Guide — Ask about {breed}</h2>
+          <h2>Care Guide — Ask about {breed}</h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
@@ -59,7 +59,14 @@ export default function CareGuide({ playerName, breed, isOpen, onClose }) {
             <p>{answer}</p>
             {sources.length > 0 && (
               <div className="care-guide-sources">
-                <small>Advice sourced from AKC and PetMD</small>
+                <small>Sources:</small>
+                <ul className="care-guide-source-list">
+                  {sources.map((url, i) => (
+                    <li key={i}>
+                      <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
