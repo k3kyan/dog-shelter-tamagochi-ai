@@ -276,7 +276,7 @@ h1 {
 /* === RESCUE SCREEN === */
 .rescue-screen {
   position: relative;
-  padding: 16px 20px 80px;
+  padding: 16px 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -525,57 +525,22 @@ h1 {
   cursor: not-allowed;
 }
 
-/* === CARE GUIDE === */
-.care-guide-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 100;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.care-guide-panel {
-  background: var(--bg);
-  width: 400px;
-  max-width: 100vw;
-  height: 100%;
-  padding: 24px;
+/* === CARE GUIDE (inline) === */
+.care-guide {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  overflow-y: auto;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-}
-
-.care-guide-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   gap: 10px;
 }
 
-.care-guide-header h2 {
-  font-size: 17px;
-  margin: 0;
-  text-align: left;
-}
-
-.close-btn {
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--text);
-  flex-shrink: 0;
-  transition: background 0.2s;
-}
-
-.close-btn:hover {
-  background: var(--border);
+.care-guide-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: 0.2px;
 }
 
 .care-guide-input-row {
@@ -706,25 +671,3 @@ h1 {
   }
 }
 
-/* === CARE GUIDE BUTTON === */
-.guide-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--dog-primary);
-  color: white;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(194, 112, 58, 0.4);
-  transition: all 0.2s;
-  z-index: 50;
-}
-
-.guide-btn:hover {
-  background: var(--dog-dark);
-  transform: scale(1.05);
-}

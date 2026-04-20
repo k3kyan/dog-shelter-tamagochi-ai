@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { askCareGuide } from '../api/client'
 
-export default function CareGuide({ playerName, breed, isOpen, onClose }) {
+export default function CareGuide({ playerName, breed }) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState(null)
   const [sources, setSources] = useState([])
@@ -23,55 +23,48 @@ export default function CareGuide({ playerName, breed, isOpen, onClose }) {
     }
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="care-guide-overlay" onClick={onClose}>
-      <div className="care-guide-panel" onClick={e => e.stopPropagation()}>
-        <div className="care-guide-header">
-          <h2>Care Guide — Ask about {breed}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
-        </div>
+    <div className="care-guide">
+      <div className="care-guide-title">📖 Care Guide — Ask about {breed}</div>
 
-        <div className="care-guide-input-row">
-          <input
-            type="text"
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAsk()}
-            placeholder="Ask a care question..."
-            className="care-guide-input"
-            disabled={loading}
-          />
-          <button
-            className="care-guide-ask-btn"
-            onClick={handleAsk}
-            disabled={!question.trim() || loading}
-          >
-            {loading ? 'Searching...' : 'Ask'}
-          </button>
-        </div>
-
-        {loading && <p className="care-guide-loading">Looking through care guides...</p>}
-
-        {answer && (
-          <div className="care-guide-answer">
-            <p>{answer}</p>
-            {sources.length > 0 && (
-              <div className="care-guide-sources">
-                <small>Sources:</small>
-                <ul className="care-guide-source-list">
-                  {sources.map((url, i) => (
-                    <li key={i}>
-                      <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
+      <div className="care-guide-input-row">
+        <input
+          type="text"
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleAsk()}
+          placeholder="Ask a care question..."
+          className="care-guide-input"
+          disabled={loading}
+        />
+        <button
+          className="care-guide-ask-btn"
+          onClick={handleAsk}
+          disabled={!question.trim() || loading}
+        >
+          {loading ? 'Searching...' : 'Ask'}
+        </button>
       </div>
+
+      {loading && <p className="care-guide-loading">Looking through care guides...</p>}
+
+      {answer && (
+        <div className="care-guide-answer">
+          <p>{answer}</p>
+          {sources.length > 0 && (
+            <div className="care-guide-sources">
+              <small>Sources:</small>
+              <ul className="care-guide-source-list">
+                {sources.map((url, i) => (
+                  <li key={i}>
+                    <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

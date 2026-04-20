@@ -20,7 +20,6 @@ export default function RescueScreen({ initialState }) {
   const [gameState, setGameState] = useState(initialState)
   const [chatBubble, setChatBubble] = useState(null)
   const [chatHappy, setChatHappy] = useState(false)
-  const [guideOpen, setGuideOpen] = useState(false)
   const [toasts, setToasts] = useState([])
   const prevTrustRef = useRef(initialState.trust)
   const chatBubbleTimer = useRef(null)
@@ -108,6 +107,10 @@ export default function RescueScreen({ initialState }) {
             trust={gameState.trust}
             onChatResponse={handleChatResponse}
           />
+          <CareGuide
+            playerName={gameState.player_name}
+            breed={trustStage.name_revealed ? gameState.breed : '???'}
+          />
         </div>
 
         <div className="rescue-right">
@@ -125,16 +128,6 @@ export default function RescueScreen({ initialState }) {
         </div>
       </div>
 
-      <button className="guide-btn" onClick={() => setGuideOpen(true)} title="Care Guide">
-        Care Guide
-      </button>
-
-      <CareGuide
-        playerName={gameState.player_name}
-        breed={trustStage.name_revealed ? gameState.breed : '???'}
-        isOpen={guideOpen}
-        onClose={() => setGuideOpen(false)}
-      />
     </div>
   )
 }
