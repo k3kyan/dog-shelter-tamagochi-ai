@@ -19,7 +19,7 @@ player_router = APIRouter(
 )
 
 # create new player in dynamodb
-@player_router.post('/')
+@player_router.post('/start')
 def start_game(req: StartGameSchema):
     # check if player name already taken
     if get_player(req.player_name):
