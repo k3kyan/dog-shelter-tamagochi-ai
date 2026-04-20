@@ -16,6 +16,8 @@ TRUST_GAINS = {
 # determines what stage of trust the dog is in based on trust value
 # stage of trust determines whether personality and name are revealed
 # stage of trust also determines the dog's mood towards you
+# TODO: NOTE: the name_revealed field was for my idea of the player would get a mystery dog that best matches their adopter profile, but now, i just let them choose their dog breed.
+    # would be fun to implement in future tho, so keeping this field.
 def get_trust_stage(trust: float) -> dict:
     if trust < 30:
         return {'stage':'withdrawn','personality_revealed':False,

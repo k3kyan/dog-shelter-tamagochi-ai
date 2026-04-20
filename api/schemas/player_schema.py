@@ -32,6 +32,7 @@ class PlayerProfileSchema(BaseModel):
     exercise_needs: float
     affectionate: int
     stranger_friendly: int
+    description: str = ""
 
 class PlayerProfileUpdateSchema(BaseModel):
     hunger: Optional[float] = None

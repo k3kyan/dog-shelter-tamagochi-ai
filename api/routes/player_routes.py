@@ -3,7 +3,6 @@
 import pandas as pd, os
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
-from services.etlpipeline_loader import breed_df
 from services.player_service import get_player, save_player
 from services.trust_system import get_trust_stage 
 from services.etlpipeline_loader import breed_df
@@ -16,11 +15,11 @@ from schemas.player_schema import (
 
 player_router = APIRouter(
     prefix="/player",
-    tags=["player", "adopter", "startgame", "start"]
+    tags=["player"]
 )
 
 # create new player in dynamodb
-@player_router.post('/')
+@player_router.post('/start')
 def start_game(req: StartGameSchema):
     # check if player name already taken
     if get_player(req.player_name):
@@ -53,15 +52,16 @@ def start_game(req: StartGameSchema):
 
         # breed data to show to player later
         avg_days_in_shelter=float(breed_data.get('avg_days_in_shelter', 0)),
-        personality_type=breed_data.get('personality_type', ''),
+        personality_type=breed_data.get('group', ''), #TODO: temp, fill in when i do the kmeans clustering
         temperament=breed_data.get('temperament', ''),
-        energy_level=float(breed_data.get('energy_level', 0.5)),
-        trainability=float(breed_data.get('trainability', 0.5)),
-        grooming_frequency=float(breed_data.get('grooming_frequency', 0.5)),
+        energy_level=float(breed_data.get('energy_level_value', 0.5)),
+        trainability=float(breed_data.get('trainability_value', 0.5)),
+        grooming_frequency=float(breed_data.get('grooming_frequency_value', 0.5)),
         weight_gain_risk=float(breed_data.get('weight_gain_risk', 3)),
         exercise_needs=float(breed_data.get('exercise_needs', 3)),
         affectionate=int(breed_data.get('affectionate', 3)),
         stranger_friendly=int(breed_data.get('stranger_friendly', 3)),
+        description=breed_data.get('description', ''),
     )
 
     save_player(player.model_dump())

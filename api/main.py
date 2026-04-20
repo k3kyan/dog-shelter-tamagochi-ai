@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from routes import breed_routes, player_routes, care_routes
+from routes import breed_routes, player_routes, care_routes, agent_routes
 
 app = FastAPI()
 
@@ -13,6 +13,7 @@ origins = [
 ]
 app.add_middleware(
     CORSMiddleware, 
+    # allow_origins=origins, #if i only wanted to allow specific urls to access
     allow_origins=["*"],
     allow_methods=["*"], 
     allow_headers=["*"]
@@ -20,8 +21,9 @@ app.add_middleware(
 
 
 app.include_router(breed_routes.breed_router)
-app.include_router(player_routes.adopter_router)
+app.include_router(player_routes.player_router)
 app.include_router(care_routes.care_router)
+app.include_router(agent_routes.agent_router)
 
 
 handler = Mangum(app)

@@ -9,7 +9,7 @@ from schemas.player_schema import PlayerProfileUpdateSchema
 
 care_router = APIRouter(
     prefix="/care",
-    tags=["care", "trust_system"]
+    tags=["care"]
 )
 
 # how user's action affect's a dog's trust level based on the breed's personality

@@ -22,7 +22,8 @@ class PlayerProfileModel:
         weight_gain_risk: float,
         exercise_needs: float,
         affectionate: int,
-        stranger_friendly: int
+        stranger_friendly: int,
+        description: str = ""
     ):
         self.player_name=player_name
         self.breed=breed
@@ -42,32 +43,7 @@ class PlayerProfileModel:
         self.exercise_needs=exercise_needs
         self.affectionate=affectionate
         self.stranger_friendly=stranger_friendly
-
-
-    # TODO:
-    # create a model from schema
-    @classmethod
-    def to_model(cls, schema: PlayerProfileSchema):
-        return cls(
-            player_name=schema.player_name,
-            breed=schema.breed,
-            adopter_profile=schema.adopter_profile,
-            hunger=schema.hunger,
-            happiness=schema.happiness,
-            energy=schema.energy,
-            health=schema.health,
-            trust=schema.trust,
-            avg_days_in_shelter=schema.avg_days_in_shelter,
-            personality_type=schema.personality_type,
-            temperament=schema.temperament,
-            energy_level=schema.energy_level,
-            trainability=schema.trainability,
-            grooming_frequency=schema.grooming_frequency,
-            weight_gain_risk=schema.weight_gain_risk,
-            exercise_needs=schema.exercise_needs,
-            affectionate=schema.affectionate,
-            stranger_friendly=schema.stranger_friendly
-        )
+        self.description=description
 
     def to_decimals(self) -> dict:
         return {
@@ -89,6 +65,7 @@ class PlayerProfileModel:
             "exercise_needs": Decimal(str(self.exercise_needs)),
             "affectionate": self.affectionate,
             "stranger_friendly": self.stranger_friendly,
+            "description": self.description,
         }
     
     # dont need to_floats since since Pydantic's coercion handles both read paths

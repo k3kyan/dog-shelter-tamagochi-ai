@@ -1,4 +1,6 @@
 import pandas as pd, os
+from dotenv import load_dotenv
+load_dotenv()
 
 breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
