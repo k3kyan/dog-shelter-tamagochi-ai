@@ -9,7 +9,7 @@ TRUST_GAINS = {
     'groom': 3, 
     'talk': 5,
     # 'ignore': -1,
-    # 'rest': 0
+    'rest': 1
 }
 
 # TODO-later: could probably put these stage names as enums

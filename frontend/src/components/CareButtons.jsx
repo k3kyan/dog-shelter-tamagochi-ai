@@ -6,6 +6,7 @@ const ACTIONS = [
   { action: 'walk',  label: 'Walk',  icon: '🦮' },
   { action: 'groom', label: 'Groom', icon: '✂️' },
   { action: 'play',  label: 'Play',  icon: '🎾' },
+  { action: 'rest',  label: 'Rest',  icon: '💤' },
 ]
 
 export default function CareButtons({ playerName, trustStage, onUpdate }) {
