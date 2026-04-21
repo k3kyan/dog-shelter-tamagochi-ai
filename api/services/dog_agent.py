@@ -61,7 +61,7 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
         trust anyone yet.
 
         Your current state (use this to inform your mood, do NOT quote these numbers):
-        - Hunger: {hunger}/100  (0=full, 100=starving)
+        - Hunger: {hunger}/100  (0=starving, 100=full)
         - Energy: {energy}/100  (0=exhausted, 100=full of energy)
         - Happiness: {happiness}/100  (0=miserable, 100=very happy)
         - Health: {health}/100  (0=very sick, 100=perfectly healthy)
@@ -77,7 +77,7 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
         breaking through but you pull back quickly.
 
         Your current state (use this to inform your mood, do NOT quote these numbers):
-        - Hunger: {hunger}/100  (0=full, 100=starving)
+        - Hunger: {hunger}/100  (0=starving, 100=full)
         - Energy: {energy}/100  (0=exhausted, 100=full of energy)
         - Happiness: {happiness}/100  (0=miserable, 100=very happy)
         - Health: {health}/100  (0=very sick, 100=perfectly healthy)
@@ -93,7 +93,7 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
         Energy level: {energy_score}/1.0. Trainability: {trainability}/1.0.
 
         Your current state (use this to inform your mood, do NOT quote these numbers):
-        - Hunger: {hunger}/100  (0=full, 100=starving)
+        - Hunger: {hunger}/100  (0=starving, 100=full)
         - Energy: {energy}/100  (0=exhausted, 100=full of energy)
         - Happiness: {happiness}/100  (0=miserable, 100=very happy)
         - Health: {health}/100  (0=very sick, 100=perfectly healthy)
@@ -109,7 +109,7 @@ TRUST_STAGE_SYSTEM_PROMPTS = {
         Energy level: {energy_score}/1.0. Trainability: {trainability}/1.0.
 
         Your current state (use this to inform your mood, do NOT quote these numbers):
-        - Hunger: {hunger}/100  (0=full, 100=starving)
+        - Hunger: {hunger}/100  (0=starving, 100=full)
         - Energy: {energy}/100  (0=exhausted, 100=full of energy)
         - Happiness: {happiness}/100  (0=miserable, 100=very happy)
         - Health: {health}/100  (0=very sick, 100=perfectly healthy)
