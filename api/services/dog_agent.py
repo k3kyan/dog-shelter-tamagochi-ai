@@ -31,7 +31,7 @@ llm = ChatGroq(
 # The LLM reads the docstring (the """method description""") to know what to pass
 # health is not passed in bc its not as good of an indicator of what CARE ACTION to do as these 3 attributes (i could come up with something but eh)
 @tool
-def suggest_activity(hunger: int, happiness: int, energy: int) -> str:
+def suggest_activity(hunger: float, happiness: float, energy: float) -> str:
     """
     Suggests what the dog needs most right now (care action) based on current stats.
     Call this when the player asks what to do or what the dog needs.
