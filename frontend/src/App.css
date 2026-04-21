@@ -370,14 +370,10 @@ h1 {
   border-top-color: var(--dog-light);
 }
 
-.ascii-dog {
-  font-family: var(--mono);
-  font-size: 20px;
-  line-height: 1.6;
-  margin: 0;
-  color: var(--dog-dark);
-  letter-spacing: 2px;
-  text-align: center;
+.dog-img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
 }
 
 /* === STAT BARS === */
