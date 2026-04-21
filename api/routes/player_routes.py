@@ -48,7 +48,7 @@ def start_game(req: StartGameSchema):
         health=90.0,
 
         # trust initialized from real shelter data
-        trust=float(breed_data.get('starting_trust', 30.0)),
+        trust=float(breed_data.get('starting_trust', 30.0)) / 2, # temp: halved bc too high, thats an etl pipeline issue to fix later
 
         # breed data to show to player later
         avg_days_in_shelter=float(breed_data.get('avg_days_in_shelter', 0)),
