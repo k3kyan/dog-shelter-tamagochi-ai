@@ -1,0 +1,7 @@
+apivenv/
+__pycache__/
+*.pyc
+*.pyo
+tests/
+.env
+run-api.sh

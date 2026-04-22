@@ -85,7 +85,7 @@ xx. venv + dependencies
     xx. python.exe -m pip install --upgrade pip
     xx. pip install fastapi uvicorn mangum python-dotenv 
     xx. pip install langchain langchain-groq chromadb sentence-transformers
-    xx. pip install pandas pyarrow pytest httpx torch
+    xx. pip install pandas pyarrow pytest httpx torch boto3
     xx. pip freeze > requirements.txt
 
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
@@ -107,3 +107,9 @@ xx. create app directory for cicd aws
 xx. cloudformation
 xx. aws setup 
 xx. ci/cd pipeline with GitHub
+
+TODO: 
+docker files for ecr
+cloudformation
+buildspec
+edit code for aws loading
