@@ -38,6 +38,7 @@ def perform_care(req: CareRequestSchema):
         'groom': {'happiness': 15.0},
         'play':  {'happiness': 25.0, 'energy': -10.0},
         'talk':  {'happiness': 5.0},
+        'rest':  {'energy': 25.0},
     }.get(req.action, {})
 
     # TODO:

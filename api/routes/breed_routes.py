@@ -10,10 +10,12 @@ breed_router = APIRouter(
 
 # breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
 
-# get list of breeds
+# get list of breeds with shelter stats for the adoption screen
 @breed_router.get("/")
 def get_breeds():
-    return sorted(breed_df['breed'].str.title().tolist())
+    df = breed_df[['breed', 'avg_days_in_shelter']].copy()
+    df['breed'] = df['breed'].str.title()
+    return df.sort_values('breed').to_dict(orient='records')
 
 
 # get specific breed info from pandas dataframe
