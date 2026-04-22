@@ -116,6 +116,13 @@ Resources:
       Principal: '*'
       FunctionUrlAuthType: NONE
 
+  # --- S3 Data (parquet + chroma_db) ---
+  # accessed by Lambda via IAM role, no need for bucket policy bc no public access
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref DataBucketName
+
   # --- S3 Frontend ---
   FrontendBucket:
     Type: AWS::S3::Bucket
