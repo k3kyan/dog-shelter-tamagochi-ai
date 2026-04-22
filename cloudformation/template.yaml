@@ -4,9 +4,12 @@ Description: dog-shelter-tamagochi-ai infrastructure
 
 # need ImageUri bc docker bc my app requiremetns (sentencetransformer and torch) are too big for lambda zip
 Parameters:
+  # THE ONLY PARAMETER I NEED TO INJECT MANUALLY
   GroqApiKey:
     Type: String
     NoEcho: true
+  # These are just names for organization and one place of control (i forgot the principle name)
+  # TODO: replace the other resource names here too, like dynamodb, etc
   DataBucketName:
     Type: String
     Default: dog-shelter-tamagochi-ai-data
