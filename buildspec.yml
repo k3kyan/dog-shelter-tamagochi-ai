@@ -37,3 +37,9 @@ phases:
       - CLOUDFRONT_ID=$(aws cloudformation describe-stacks --stack-name dog-shelter-tamagochi-ai --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" --output text)
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/*"
       - echo Deploy complete.
+
+# NOTE: I'm not uploading the .parquet or chroma_db/ files in buildspec.yml bc theyre static and dont change much and are TOO BIG
+# if i update the .parquet or chroma_db/ files, I can reupload them with these commands (which i have to do before first github push anyways)
+  # aws s3 cp pipeline/data/processed/breed_profiles.parquet s3://dog-shelter-tamagochi-ai-data/
+  # aws s3 sync ragpipeline/data/chroma_db/ s3://dog-shelter-tamagochi-ai-data/chroma_db/
+  
