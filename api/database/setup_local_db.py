@@ -18,7 +18,7 @@ def create_table():
     dynamodb = get_dynamodb()
     try:
         table = dynamodb.create_table(
-            TableName=os.getenv('DYNAMODB_TABLE', 'dog-shelter-tamagochi-ai_players'),
+            TableName=os.getenv('DYNAMODB_TABLE', 'dog-shelter-tamagochi-ai-players'),
             KeySchema=[
                 {'AttributeName': 'player_name', 'KeyType': 'HASH'},
             ],
