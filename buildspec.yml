@@ -24,8 +24,10 @@ phases:
   build:
     commands:
       - echo Building Docker image...
+      - COMMIT_SHA=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
       - docker build -t $ECR_REPO ./api
       - docker tag $ECR_REPO:latest $ECR_REGISTRY/$ECR_REPO:latest
+      - docker tag $ECR_REPO:latest $ECR_REGISTRY/$ECR_REPO:$COMMIT_SHA
       - echo Building React frontend...
       - export VITE_API_URL=$(aws cloudformation describe-stacks --stack-name dog-shelter-tamagochi-ai --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" --output text | sed 's:/*$::')
       - cd frontend && npm run build && cd ..
@@ -34,9 +36,9 @@ phases:
     commands:
       - echo Pushing Docker image to ECR...
       - docker push $ECR_REGISTRY/$ECR_REPO:latest
+      - docker push $ECR_REGISTRY/$ECR_REPO:$COMMIT_SHA
       - echo Writing image URI for CloudFormation Deploy stage...
-      - IMAGE_DIGEST=$(aws ecr describe-images --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageDigest' --output text)
-      - printf '{"ImageUri":"%s"}' "$ECR_REGISTRY/$ECR_REPO@$IMAGE_DIGEST" > imageUri.json
+      - printf '{"ImageUri":"%s"}' "$ECR_REGISTRY/$ECR_REPO:$COMMIT_SHA" > imageUri.json
       - echo Syncing frontend to S3...
       - aws s3 sync frontend/dist/ s3://$FRONTEND_BUCKET --delete
       - echo Invalidating CloudFront cache...
