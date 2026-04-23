@@ -35,11 +35,11 @@ Resources:
           {
             "rules": [{
               "rulePriority": 1,
-              "description": "Keep only the 3 most recent images",
+              "description": "Keep only the most recent image",
               "selection": {
                 "tagStatus": "any",
                 "countType": "imageCountMoreThan",
-                "countNumber": 3
+                "countNumber": 1
               },
               "action": { "type": "expire" }
             }]
