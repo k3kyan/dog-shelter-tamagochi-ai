@@ -224,6 +224,9 @@ Resources:
       PackageType: Image
       Code:
         ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command:
+          - main.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 180
       MemorySize: 2048
