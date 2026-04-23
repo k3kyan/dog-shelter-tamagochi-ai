@@ -4,10 +4,6 @@ Description: dog-shelter-tamagochi-ai infrastructure
 
 # need ImageUri bc docker bc my app requiremetns (sentencetransformer and torch) are too big for lambda zip
 Parameters:
-  # THE ONLY PARAMETER I NEED TO INJECT MANUALLY
-  GroqApiKey:
-    Type: String
-    NoEcho: true
   # These are just names for organization and one place of control (i forgot the principle name)
   # TODO: replace the other resource names here too, like dynamodb, etc
   DataBucketName:
@@ -232,7 +228,7 @@ Resources:
       MemorySize: 2048
       Environment:
         Variables:
-          GROQ_API_KEY: !Ref GroqApiKey
+          GROQ_API_KEY: '{{resolve:ssm-secure:/dog-shelter-tamagochi-ai/groq-api-key}}'
           DATA_PATH: /tmp/breed_profiles.parquet
           CHROMA_PATH: /tmp/chroma_db
           DYNAMODB_TABLE: dog-shelter-tamagochi-ai-players
@@ -358,10 +354,7 @@ Resources:
         # PrivilegedMode lets CodeBuild run the Docker daemon inside the build container. (tbh im still confused about this, need to research more later)
         # without this, `docker build` fails — CodeBuild containers are unprivileged by default.
         PrivilegedMode: true
-        EnvironmentVariables:
-          - Name: GROQ_API_KEY
-            Value: !Ref GroqApiKey
-            Type: PLAINTEXT
+        EnvironmentVariables: []
       # CODEPIPELINE means CodeBuild gets its source from the artifact CodePipeline passes it
       # (the zipped GitHub source), rather than pulling from GitHub directly itself
       Source:
