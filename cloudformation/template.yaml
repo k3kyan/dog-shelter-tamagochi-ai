@@ -16,6 +16,9 @@ Parameters:
   FrontendBucketName:
     Type: String
     Default: dog-shelter-tamagochi-ai-frontend
+  GitHubBranch:
+    Type: String
+    Default: main
 
 Resources:
 
@@ -24,6 +27,20 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: dog-shelter-tamagochi-ai-api
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [{
+              "rulePriority": 1,
+              "description": "Keep only the 3 most recent images",
+              "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 3
+              },
+              "action": { "type": "expire" }
+            }]
+          }
 
   # --- DynamoDB ---
   PlayersTable:
@@ -38,7 +55,7 @@ Resources:
         - AttributeName: player_name
           KeyType: HASH
 
-  # --- IAM Role ---
+  # --- IAM Role (Lambda) ---
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -73,6 +90,102 @@ Resources:
                   - dynamodb:Query
                   - dynamodb:Scan
                 Resource: !GetAtt PlayersTable.Arn
+
+  # --- IAM Role (CodePipeline) ---
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: dog-shelter-tamagochi-ai-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: dog-shelter-tamagochi-ai-codepipeline-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: !Ref GitHubConnection
+              - Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                Resource: !GetAtt CodeBuildProject.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetBucketVersioning
+                Resource:
+                  - !GetAtt PipelineArtifactBucket.Arn
+                  - !Sub ${PipelineArtifactBucket.Arn}/*
+
+  # --- IAM Role (CodeBuild) ---
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: dog-shelter-tamagochi-ai-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: dog-shelter-tamagochi-ai-codebuild-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                Resource: !GetAtt ApiRepository.Arn
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionCode
+                Resource: !GetAtt ApiFunction.Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt FrontendBucket.Arn
+                  - !Sub ${FrontendBucket.Arn}/*
+                  - !GetAtt PipelineArtifactBucket.Arn
+                  - !Sub ${PipelineArtifactBucket.Arn}/*
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/dog-shelter-tamagochi-ai/*
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
 
   # --- Lambda ---
   ApiFunction:
@@ -116,6 +229,13 @@ Resources:
       Principal: '*'
       FunctionUrlAuthType: NONE
 
+  # --- CloudWatch log group (30-day retention, prevents logs accumulating forever) ---
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/dog-shelter-tamagochi-ai-api
+      RetentionInDays: 30
+
   # --- S3 Data (parquet + chroma_db) ---
   # accessed by Lambda via IAM role, no need for bucket policy bc no public access
   DataBucket:
@@ -142,6 +262,12 @@ Resources:
             Principal: '*'
             Action: s3:GetObject
             Resource: !Sub arn:aws:s3:::${FrontendBucketName}/*
+
+  # --- S3 Pipeline artifacts (CodePipeline passes source zip to CodeBuild through here) ---
+  PipelineArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: dog-shelter-tamagochi-ai-pipeline-artifacts
 
   # --- CloudFront ---
   CloudFrontDistribution:
@@ -171,6 +297,72 @@ Resources:
             ResponseCode: 200
             ResponsePagePath: /index.html
 
+  # --- GitHub connection (one-time OAuth handshake required in AWS console after deploy) ---
+  GitHubConnection:
+    Type: AWS::CodeStarConnections::Connection
+    Properties:
+      ConnectionName: dog-shelter-tamagochi-ai-github
+      ProviderType: GitHub
+
+  # --- CodeBuild ---
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: dog-shelter-tamagochi-ai-build
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true  # required for Docker builds inside CodeBuild
+        EnvironmentVariables:
+          - Name: GROQ_API_KEY
+            Value: !Ref GroqApiKey
+            Type: PLAINTEXT
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Artifacts:
+        Type: CODEPIPELINE
+
+  # --- CodePipeline ---
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: dog-shelter-tamagochi-ai-pipeline
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHub
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: k3kyan/dog-shelter-tamagochi-ai
+                BranchName: !Ref GitHubBranch
+                OutputArtifactFormat: CODE_ZIP
+              OutputArtifacts:
+                - Name: SourceArtifact
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: SourceArtifact
+
 Outputs:
   ApiEndpoint:
     Description: Lambda function URL
@@ -184,3 +376,6 @@ Outputs:
   ECRRepository:
     Description: ECR repository URI
     Value: !GetAtt ApiRepository.RepositoryUri
+  GitHubConnectionArn:
+    Description: Complete the OAuth handshake for this connection in AWS console -> Developer Tools -> Connections
+    Value: !Ref GitHubConnection
