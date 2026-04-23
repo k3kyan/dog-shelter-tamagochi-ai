@@ -135,6 +135,7 @@ Resources:
                   - cloudformation:CreateStack
                   - cloudformation:UpdateStack
                   - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackEvents
                   - cloudformation:DescribeChangeSet
                   - cloudformation:CreateChangeSet
                   - cloudformation:ExecuteChangeSet
@@ -228,7 +229,7 @@ Resources:
       MemorySize: 2048
       Environment:
         Variables:
-          GROQ_API_KEY: '{{resolve:ssm-secure:/dog-shelter-tamagochi-ai/groq-api-key}}'
+          GROQ_API_KEY: '{{resolve:ssm:/dog-shelter-tamagochi-ai/groq-api-key}}'
           DATA_PATH: /tmp/breed_profiles.parquet
           CHROMA_PATH: /tmp/chroma_db
           DYNAMODB_TABLE: dog-shelter-tamagochi-ai-players
