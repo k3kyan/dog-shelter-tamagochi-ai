@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.logger import logger
 from services.player_service import get_player, save_player
 from services.trust_system import get_trust_stage 
-from services.etlpipeline_loader import breed_df
+from services.etlpipeline_loader import get_breed_df
 
 from schemas.player_schema import (
     AdopterProfileSchema,
@@ -30,7 +30,8 @@ def start_game(req: StartGameSchema):
         )
 
     # fetch breed profile
-    row = breed_df[breed_df['breed'] == req.breed.upper()]
+    df = get_breed_df()
+    row = df[df['breed'] == req.breed.upper()]
     if row.empty:
         raise HTTPException(status_code=404, detail='Breed not found')
     breed_data = row.iloc[0].to_dict()
@@ -76,13 +77,12 @@ def start_game(req: StartGameSchema):
 # # purpose: match player lifestyle to DogTime columns for compatibility
 
 
-# breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
-
 # calculates score of every dog breed (in DogTime Data) based on how well it matches a user's lifestyle
 # creates a scoring table using a dataframe with all breeds
 # compatibility score (0-100)
 @player_router.post('/match')
 def match_breeds(profile: AdopterProfileSchema):
+    breed_df = get_breed_df()
     scores = pd.DataFrame()
     scores['breed'] = breed_df['breed'].str.title()
 

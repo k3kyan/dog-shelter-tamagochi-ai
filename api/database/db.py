@@ -10,18 +10,19 @@ load_dotenv()
 # dynamodb connection
 def get_table():
     """Returns the DynamoDB table resource."""
-    dynamodb = boto3.resource(
-        'dynamodb',
-        endpoint_url=os.getenv('DYNAMODB_ENDPOINT'),
-        region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'),
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID', 'local'),
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY', 'local'),
-    )
-    return dynamodb.Table(os.getenv('DYNAMODB_TABLE', 'dog-shelter-tamagochi-ai_players'))
+    endpoint = os.getenv('DYNAMODB_ENDPOINT')
+    kwargs = {'region_name': os.getenv('AWS_DEFAULT_REGION', 'us-east-1')}
+    # if running locally, add these 3 keys. Otherwise, on real AWS, boto3 falls back to IAM role auth
+    if endpoint:
+        # local dev — point boto3 at DynamoDB Local container
+        kwargs['endpoint_url'] = endpoint
+        kwargs['aws_access_key_id'] = os.getenv('AWS_ACCESS_KEY_ID', 'local')
+        kwargs['aws_secret_access_key'] = os.getenv('AWS_SECRET_ACCESS_KEY', 'local')
+    # no endpoint = real AWS = boto3 uses the Lambda IAM role automatically
+    dynamodb = boto3.resource('dynamodb', **kwargs) #remember, ** unpacks dicts
+    return dynamodb.Table(os.getenv('DYNAMODB_TABLE', 'dog-shelter-tamagochi-ai-players'))
 
 # TODO: Note for now, get_table() is called on each db operation rather than once at module level
 # BECAUSE
 # easier to swap endpoint_url between LOCAL and AWS
 # SO IN FUTURE, MAYBE WILL CHANGE THIS ONCE I DEPLOY THIS APP TO AWS
-# ACTUALLY
-# maybe ill do same thing as my website and make it into an env var switch at the start. will do this later. 

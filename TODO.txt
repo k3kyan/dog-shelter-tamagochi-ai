@@ -85,7 +85,7 @@ xx. venv + dependencies
     xx. python.exe -m pip install --upgrade pip
     xx. pip install fastapi uvicorn mangum python-dotenv 
     xx. pip install langchain langchain-groq chromadb sentence-transformers
-    xx. pip install pandas pyarrow pytest httpx torch
+    xx. pip install pandas pyarrow pytest httpx torch boto3
     xx. pip freeze > requirements.txt
 
 xx. create endpoints and game mechanics (plan) (need to figure out how to calculate trust and interact with tamagochi)
@@ -107,3 +107,16 @@ xx. create app directory for cicd aws
 xx. cloudformation
 xx. aws setup 
 xx. ci/cd pipeline with GitHub
+
+TODO: 
+docker files for ecr
+cloudformation
+buildspec
+edit code for aws loading
+
+TODO to deploy this project:
+1. Upload data files to s3 (didnt do this in pipeline bc its static, one time)
+    aws s3 cp pipeline/data/processed/breed_profiles.parquet s3://dog-shelter-tamagochi-ai-data/
+    aws s3 sync ragpipeline/data/chroma_db/ s3://dog-shelter-tamagochi-ai-data/chroma_db/
+2. Complete the GitHub OAuth handshake in AWS Console → Developer Tools → Connections after the stack deploys (the template outputs the connection ARN to remind me)
+3. Set GroqApiKey parameter on first aws cloudformation deploy call

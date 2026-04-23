@@ -1,5 +1,4 @@
 import os
-import boto3
 from decimal import Decimal
 from database.db import get_table
 from dotenv import load_dotenv
@@ -10,12 +9,7 @@ from schemas.player_schema import PlayerProfileSchema, PlayerProfileUpdateSchema
 from models.player_models import PlayerProfileModel
 
 
-dynamodb = boto3.resource("dynamodb")
-ENV_MODE = os.getenv("ENV_MODE")
-if(ENV_MODE == "local"):
-    table = get_table()
-else:
-    table = dynamodb.Table(os.getenv("CONTACTFORMMESSAGES_TABLE_NAME"))
+table = get_table()
 
 
 # fetches a player's full game state

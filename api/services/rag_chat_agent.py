@@ -8,18 +8,35 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# load chromaDB and embedding model 
-# initialize ChromaDB client
-client = chromadb.PersistentClient(
-    path = os.getenv('CHROMA_PATH', '../../ragpipeline/data/chroma_db')
-)
+# lazy singletons — delaying initializing these so Lambda can import my Python module since /tmp/chroma_db wont exist yet (which trying to initialize/create the chromadb would cause fail/crash)
+# (lazy singletons is a design pattern + timing behavior)
+# (singleton = create something once and reuse it everywhere (like a database client, cache, or heavy object u dont want to recreate over and over))
+# (lazy (in "lazy singleton") = dont create it until you actually need it)
+# (so aka lazy singleton = created once, but only when needed)
+# (the FastAPI startup event downloads chroma_db from S3 first. these init on the first actual request)
+# we have to do this way because it's how Lambda initializes its environment (cold start)
+# _get_rag_resources() initializes them on the first request (after the startup event has already downloaded /tmp/chroma_db). 
+# llm stays module-level since it's just a Groq API client with no local file dependency.
+_client = None
+_collection = None
+_embed_model = None
 
-# loads chromadb collection(table) with dataset name i chose in embed.py (contains text chunks (documents), embeddings, metadata)
-collection = client.get_collection('dog_care_articles')
+def _get_rag_resources():
+    global _client, _collection, _embed_model
+    if _client is None:
+        # load chromaDB and embedding model 
+        # initialize ChromaDB client 
+        _client = chromadb.PersistentClient(
+            path=os.getenv('CHROMA_PATH', '../../ragpipeline/data/chroma_db')
+        )
 
-# load embedding model
-# IMPORTANT: you must use the same model you used when storing embeddings!!!!!!!!
-embed_model = SentenceTransformer('all-MiniLM-L6-v2')
+        # loads chromadb collection(table) with dataset name i chose in embed.py (contains text chunks (documents), embeddings, metadata)  
+        _collection = _client.get_collection('dog_care_articles')
+
+        # load embedding model 
+        # IMPORTANT: you must use the same model you used when storing embeddings!!!!!!!!
+        _embed_model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _client, _collection, _embed_model
 
 # Initialize Groq LLM for generating responses for user
 llm = ChatGroq(
@@ -29,6 +46,9 @@ llm = ChatGroq(
 
 # the final piece of the RAG pattern: retrieving relevant context, then generating an informed answer using the LLM
 def retrieve_and_answer(question: str, breed: str):
+    # we're not using client here, we just needed to initialize that, so we have _ in its place here
+    _, collection, embed_model = _get_rag_resources()
+
     # 1. embed player's question
     # IMPORTANT: convert query -> embedding (that actually makes a lot of sense!! how else are we supposed to map and compare vectors)
     query_embedding = embed_model.encode([question]).tolist()

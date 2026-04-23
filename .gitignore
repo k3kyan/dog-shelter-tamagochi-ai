@@ -32,6 +32,7 @@ missingcontextbcranoutoftokens_contextualized_chunks.json
 # Build artifacts
 dist/
 node_modules/
+frontend/.vite/
 
 # IDE
 .DS_Store
