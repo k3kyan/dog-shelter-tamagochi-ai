@@ -8,6 +8,10 @@ env:
   # set GROQ_API_KEY as environment variable in the CodeBuild project
 
 phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
