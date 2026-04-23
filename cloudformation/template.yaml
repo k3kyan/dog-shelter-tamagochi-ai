@@ -19,33 +19,12 @@ Parameters:
   GitHubBranch:
     Type: String
     Default: main
-  # populated automatically by the CodePipeline Deploy stage from imageUri.json (never set manually)
-  # placeholder default is only used on the very first deploy before the pipeline has ever run
+  # pass this on the first deploy (i did docker pull tag push)
+  # after that, the CodePipeline Deploy stage updates it automatically from imageUri.json (will not have to touch image uri again or set it to anything)
   ImageUri:
     Type: String
-    Default: public.ecr.aws/lambda/python:3.11
 
 Resources:
-
-  # --- ECR ---
-  ApiRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: dog-shelter-tamagochi-ai-api
-      LifecyclePolicy:
-        LifecyclePolicyText: |
-          {
-            "rules": [{
-              "rulePriority": 1,
-              "description": "Keep only the most recent image",
-              "selection": {
-                "tagStatus": "any",
-                "countType": "imageCountMoreThan",
-                "countNumber": 1
-              },
-              "action": { "type": "expire" }
-            }]
-          }
 
   # --- DynamoDB ---
   PlayersTable:
@@ -208,7 +187,7 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
-                Resource: !GetAtt ApiRepository.Arn
+                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/dog-shelter-tamagochi-ai-api
               # sync the React build to the frontend S3 bucket + read from the artifact bucket
               # (artifact bucket is where CodePipeline dropped the source zip for CodeBuild to use)
               - Effect: Allow
@@ -302,6 +281,12 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      # override account-level Block Public Access so the public bucket policy below can be applied
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
 
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -460,9 +445,6 @@ Outputs:
   CloudFrontDistributionId:
     Description: CloudFront distribution ID (used for cache invalidation in buildspec.yml)
     Value: !Ref CloudFrontDistribution
-  ECRRepository:
-    Description: ECR repository URI
-    Value: !GetAtt ApiRepository.RepositoryUri
   GitHubConnectionArn:
     Description: Complete the OAuth handshake for this connection in AWS console -> Developer Tools -> Connections
     Value: !Ref GitHubConnection
