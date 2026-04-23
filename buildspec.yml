@@ -4,7 +4,6 @@ env:
   variables:
     DATA_BUCKET: dog-shelter-tamagochi-ai-data
     FRONTEND_BUCKET: dog-shelter-tamagochi-ai-frontend
-    LAMBDA_FUNCTION: dog-shelter-tamagochi-ai-api
     ECR_REPO: dog-shelter-tamagochi-ai-api
   # set GROQ_API_KEY as environment variable in the CodeBuild project
 
@@ -29,14 +28,20 @@ phases:
     commands:
       - echo Pushing Docker image to ECR...
       - docker push $ECR_REGISTRY/$ECR_REPO:latest
-      - echo Updating Lambda function...
-      - aws lambda update-function-code --function-name $LAMBDA_FUNCTION --image-uri $ECR_REGISTRY/$ECR_REPO:latest
+      - echo Writing image URI for CloudFormation Deploy stage...
+      - printf '{"ImageUri":"%s"}' "$ECR_REGISTRY/$ECR_REPO:latest" > imageUri.json
       - echo Syncing frontend to S3...
       - aws s3 sync frontend/dist/ s3://$FRONTEND_BUCKET --delete
       - echo Invalidating CloudFront cache...
       - CLOUDFRONT_ID=$(aws cloudformation describe-stacks --stack-name dog-shelter-tamagochi-ai --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" --output text)
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/*"
-      - echo Deploy complete.
+      - echo Build complete, handing off to Deploy stage...
+
+# imageUri.json is passed to the CodePipeline Deploy stage so CloudFormation can update
+# the Lambda image URI without needing a placeholder or manual input
+artifacts:
+  files:
+    - imageUri.json
 
 # NOTE: I'm not uploading the .parquet or chroma_db/ files in buildspec.yml bc theyre static and dont change much and are TOO BIG
 # if i update the .parquet or chroma_db/ files, I can reupload them with these commands (which i have to do before first github push anyways)
