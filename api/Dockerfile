@@ -15,5 +15,6 @@ COPY models/ models/
 COPY routes/ routes/
 COPY schemas/ schemas/
 COPY services/ services/
+RUN echo "Files in /var/task:" && ls /var/task/
 
 CMD ["main.handler"]

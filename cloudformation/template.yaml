@@ -184,6 +184,7 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
+                  - ecr:DescribeImages
                 Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/dog-shelter-tamagochi-ai-api
               # sync the React build to the frontend S3 bucket + read from the artifact bucket
               # (artifact bucket is where CodePipeline dropped the source zip for CodeBuild to use)
