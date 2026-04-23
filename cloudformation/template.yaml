@@ -92,6 +92,9 @@ Resources:
                 Resource: !GetAtt PlayersTable.Arn
 
   # --- IAM Role (CodePipeline) ---
+  # CodePipeline needs permission to do its job: read from GitHub, trigger CodeBuild, and
+  # read/write the s3 artifact bucket it uses to pass the source zip to CodeBuild between stages.
+  # AssumeRolePolicyDocument = "which AWS service is allowed to wear this role"
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -108,15 +111,19 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
+              # use the GitHub OAuth connection to pull source code
               - Effect: Allow
                 Action:
                   - codestar-connections:UseConnection
                 Resource: !Ref GitHubConnection
+              # trigger a CodeBuild run and check whether it finished
               - Effect: Allow
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
                 Resource: !GetAtt CodeBuildProject.Arn
+              # read/write the artifact bucket — CodePipeline zips up the source code and puts it
+              # here so CodeBuild can pick it up; GetBucketVersioning is required by CodePipeline internally
               - Effect: Allow
                 Action:
                   - s3:GetObject
@@ -127,6 +134,10 @@ Resources:
                   - !Sub ${PipelineArtifactBucket.Arn}/*
 
   # --- IAM Role (CodeBuild) ---
+  # CodeBuild is the one actually running buildspec.yml, so it needs permission for every AWS CLI
+  # command in that file. It's long because buildspec.yml does a lot: 
+  # Docker push, Lambda update, S3 sync, CloudFront invalidation
+  # (cloudfront invalidation important bc cache!!! dont want stale)
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
@@ -143,10 +154,13 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
+              # GetAuthorizationToken must be Resource: '*' bc its an account-level ECR action,
+              # not scoped to a specific repo. needed for `aws ecr get-login-password` in buildspec.yml
               - Effect: Allow
                 Action:
                   - ecr:GetAuthorizationToken
                 Resource: '*'
+              # push the Docker image to ECR — all these actions are required for a docker push
               - Effect: Allow
                 Action:
                   - ecr:BatchCheckLayerAvailability
@@ -157,10 +171,13 @@ Resources:
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
                 Resource: !GetAtt ApiRepository.Arn
+              # swap the Lambda's running image to the newly pushed one
               - Effect: Allow
                 Action:
                   - lambda:UpdateFunctionCode
                 Resource: !GetAtt ApiFunction.Arn
+              # sync the React build to the frontend S3 bucket + read from the artifact bucket
+              # (artifact bucket is where CodePipeline dropped the source zip for CodeBuild to use)
               - Effect: Allow
                 Action:
                   - s3:PutObject
@@ -172,14 +189,17 @@ Resources:
                   - !Sub ${FrontendBucket.Arn}/*
                   - !GetAtt PipelineArtifactBucket.Arn
                   - !Sub ${PipelineArtifactBucket.Arn}/*
+              # read the stack outputs to get the CloudFront distribution ID dynamically
               - Effect: Allow
                 Action:
                   - cloudformation:DescribeStacks
                 Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/dog-shelter-tamagochi-ai/*
+              # bust the CloudFront cache so users get the new frontend immediately after deploy
               - Effect: Allow
                 Action:
                   - cloudfront:CreateInvalidation
                 Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
+              # write CodeBuild's own build logs to CloudWatch
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -305,6 +325,7 @@ Resources:
       ProviderType: GitHub
 
   # --- CodeBuild ---
+  # runs buildspec.yml
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -312,13 +333,20 @@ Resources:
       ServiceRole: !GetAtt CodeBuildRole.Arn
       Environment:
         Type: LINUX_CONTAINER
+        # BUILD_GENERAL1_MEDIUM = 4GB RAM, 2 vCPU. SMALL (3GB) sometimes OOMs (out of memory errors (aka docker image will maybe fail while being built)) during docker build
+        # with heavy images like this one (torch + transformers). MEDIUM is the safe choice.
         ComputeType: BUILD_GENERAL1_MEDIUM
+        # standard:7.0 = Amazon Linux 2023, comes with Docker, Node 18, Python 3.11 pre-installed
         Image: aws/codebuild/standard:7.0
-        PrivilegedMode: true  # required for Docker builds inside CodeBuild
+        # PrivilegedMode lets CodeBuild run the Docker daemon inside the build container.
+        # without this, `docker build` fails — CodeBuild containers are unprivileged by default.
+        PrivilegedMode: true
         EnvironmentVariables:
           - Name: GROQ_API_KEY
             Value: !Ref GroqApiKey
             Type: PLAINTEXT
+      # CODEPIPELINE means CodeBuild gets its source from the artifact CodePipeline passes it
+      # (the zipped GitHub source), rather than pulling from GitHub directly itself
       Source:
         Type: CODEPIPELINE
         BuildSpec: buildspec.yml
