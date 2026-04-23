@@ -238,7 +238,7 @@ Resources:
           DYNAMODB_TABLE: dog-shelter-tamagochi-ai-players
           DATA_BUCKET: !Ref DataBucketName
 
-  ApiUrl:
+  ApiFunctionUrl:
     Type: AWS::Lambda::Url
     Properties:
       AuthType: NONE
@@ -251,7 +251,7 @@ Resources:
         AllowHeaders:
           - '*'
 
-  ApiUrlPermission:
+  ApiFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !GetAtt ApiFunction.Arn
@@ -435,7 +435,7 @@ Resources:
 Outputs:
   ApiEndpoint:
     Description: Lambda function URL
-    Value: !GetAtt ApiUrl.FunctionUrl
+    Value: !GetAtt ApiFunctionUrl.FunctionUrl
   CloudFrontDomain:
     Description: CloudFront distribution domain URL (what you visit in the browser)
     Value: !GetAtt CloudFrontDistribution.DomainName
