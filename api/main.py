@@ -14,17 +14,24 @@ async def lifespan(app: FastAPI):
     bucket = os.getenv('DATA_BUCKET')
     if bucket:  # skip when running locally (DATA_BUCKET only set in Lambda env vars via template.yaml)
         s3 = boto3.client('s3')
-        s3.download_file(bucket, 'breed_profiles.parquet', '/tmp/breed_profiles.parquet')
-        paginator = s3.get_paginator('list_objects_v2')
+        try:
+            s3.download_file(bucket, 'breed_profiles.parquet', '/tmp/breed_profiles.parquet')
+        except Exception as e:
+            raise RuntimeError(f"Failed to download breed_profiles.parquet from S3 bucket '{bucket}': {e}") from e
+
         # need to download ChromaDB from S3 to /tmp
         # rag_chat_agent.py uses chromadb.PersistentClient(path=...) which needs a writable directory
         # Lambda's only writable path is /tmp. The Lambda container filesystem itself is read-only.
-        # TODO: 
-        for page in paginator.paginate(Bucket=bucket, Prefix='chroma_db/'):
-            for obj in page.get('Contents', []):
-                local_path = f"/tmp/{obj['Key']}"
-                os.makedirs(os.path.dirname(local_path), exist_ok=True)
-                s3.download_file(bucket, obj['Key'], local_path)
+        # TODO:
+        try:
+            paginator = s3.get_paginator('list_objects_v2')
+            for page in paginator.paginate(Bucket=bucket, Prefix='chroma_db/'):
+                for obj in page.get('Contents', []):
+                    local_path = f"/tmp/{obj['Key']}"
+                    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+                    s3.download_file(bucket, obj['Key'], local_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to download chroma_db from S3 bucket '{bucket}': {e}") from e
     # everything before yield = startup (runs once before first request)
     yield  # app runs here ("app is live, handle requests now"). anything after yield would be shutdown logic (not needed)
     # everything in the lifespan function after yield = shutdown (runs when app stops) (the below code is valid bc its connected to the "app" object directly)
