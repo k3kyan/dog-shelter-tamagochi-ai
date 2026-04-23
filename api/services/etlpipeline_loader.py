@@ -2,6 +2,10 @@ import pandas as pd, os
 from dotenv import load_dotenv
 load_dotenv()
 
-breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
+_breed_df = None
 
-# TODO: is this implementation ok? should i have like checks or a getter method instead?
+def get_breed_df():
+    global _breed_df
+    if _breed_df is None:
+        _breed_df = pd.read_parquet(os.getenv('DATA_PATH'))
+    return _breed_df
