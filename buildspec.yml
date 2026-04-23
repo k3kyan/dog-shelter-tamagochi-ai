@@ -27,6 +27,7 @@ phases:
       - docker build -t $ECR_REPO ./api
       - docker tag $ECR_REPO:latest $ECR_REGISTRY/$ECR_REPO:latest
       - echo Building React frontend...
+      - export VITE_API_URL=$(aws cloudformation describe-stacks --stack-name dog-shelter-tamagochi-ai --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" --output text | sed 's:/*$::')
       - cd frontend && npm run build && cd ..
 
   post_build:
