@@ -20,8 +20,10 @@ Parameters:
     Type: String
     Default: main
   # populated automatically by the CodePipeline Deploy stage from imageUri.json (never set manually)
+  # placeholder default is only used on the very first deploy before the pipeline has ever run
   ImageUri:
     Type: String
+    Default: public.ecr.aws/lambda/python:3.11
 
 Resources:
 
