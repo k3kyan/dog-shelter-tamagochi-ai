@@ -23,15 +23,18 @@ async def lifespan(app: FastAPI):
         # rag_chat_agent.py uses chromadb.PersistentClient(path=...) which needs a writable directory
         # Lambda's only writable path is /tmp. The Lambda container filesystem itself is read-only.
         # TODO:
-        try:
-            paginator = s3.get_paginator('list_objects_v2')
-            for page in paginator.paginate(Bucket=bucket, Prefix='chroma_db/'):
-                for obj in page.get('Contents', []):
-                    local_path = f"/tmp/{obj['Key']}"
-                    os.makedirs(os.path.dirname(local_path), exist_ok=True)
-                    s3.download_file(bucket, obj['Key'], local_path)
-        except Exception as e:
-            raise RuntimeError(f"Failed to download chroma_db from S3 bucket '{bucket}': {e}") from e
+        # # chroma_db is downloaded lazily by rag_chat_agent on first /agent/care-guide call
+        #       # JK chroma_db i'm replacing with pinecone to store the db bc chroma_db takes too long to download
+                # but i'm keeping this code here in case pinecone in the future stops supporting or something?
+        # # try:
+        # #     paginator = s3.get_paginator('list_objects_v2')
+        # #     for page in paginator.paginate(Bucket=bucket, Prefix='chroma_db/'):
+        # #         for obj in page.get('Contents', []):
+        # #             local_path = f"/tmp/{obj['Key']}"
+        # #             os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        # #             s3.download_file(bucket, obj['Key'], local_path)
+        # # except Exception as e:
+        # #     raise RuntimeError(f"Failed to download chroma_db from S3 bucket '{bucket}': {e}") from e
     # everything before yield = startup (runs once before first request)
     yield  # app runs here ("app is live, handle requests now"). anything after yield would be shutdown logic (not needed)
     # everything in the lifespan function after yield = shutdown (runs when app stops) (the below code is valid bc its connected to the "app" object directly)

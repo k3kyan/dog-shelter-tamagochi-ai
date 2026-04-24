@@ -233,8 +233,10 @@ Resources:
       Environment:
         Variables:
           GROQ_API_KEY: '{{resolve:ssm:/dog-shelter-tamagochi-ai/groq-api-key}}'
+          HF_TOKEN: '{{resolve:ssm:/dog-shelter-tamagochi-ai/hf-token}}'
+          PINECONE_API_KEY: '{{resolve:ssm:/dog-shelter-tamagochi-ai/pinecone-api-key}}'
+          PINECONE_INDEX: dog-shelter-tamagochi-ai
           DATA_PATH: /tmp/breed_profiles.parquet
-          CHROMA_PATH: /tmp/chroma_db
           DYNAMODB_TABLE: dog-shelter-tamagochi-ai-players
           DATA_BUCKET: !Ref DataBucketName
 

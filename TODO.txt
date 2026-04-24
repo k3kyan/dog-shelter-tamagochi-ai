@@ -120,3 +120,6 @@ TODO to deploy this project:
     aws s3 sync ragpipeline/data/chroma_db/ s3://dog-shelter-tamagochi-ai-data/chroma_db/
 2. Complete the GitHub OAuth handshake in AWS Console → Developer Tools → Connections after the stack deploys (the template outputs the connection ARN to remind me)
 3. Set GroqApiKey parameter on first aws cloudformation deploy call
+
+pip install pinecone
+remove sentence-transformers torch chromadb scikit-learn scipy grpcio/onnxruntime (or keep these for local testing ehhhh)
