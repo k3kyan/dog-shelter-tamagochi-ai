@@ -261,6 +261,15 @@ Resources:
       Principal: '*'
       FunctionUrlAuthType: NONE
 
+  # Required since October 2025: new function URLs need both InvokeFunctionUrl AND InvokeFunction
+  # Note to self: I JUST NEEDED TO ACTUALLY GO TO THE LINK AHHHHHHHHHH BRUHHHH. at least this stopped the 403 errors BRUH
+  ApiFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ApiFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: '*'
+
   # --- CloudWatch log group (30-day retention, prevents logs accumulating forever) ---
   ApiLogGroup:
     Type: AWS::Logs::LogGroup
