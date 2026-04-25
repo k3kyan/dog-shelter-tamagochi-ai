@@ -5,10 +5,11 @@
 # import chromadb
 # from sentence_transformers import SentenceTransformer #to retrieve (remember!! same embeddings!! cool stuff)
 # from langchain_groq import ChatGroq #to chat
-import httpx
+# import httpx
 import os
 from pinecone import Pinecone
 from langchain_groq import ChatGroq
+from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -49,31 +50,17 @@ def _get_pinecone_index():
     return _index
 
 # embed questions w huggingface inference api
+# IMPORTANT: you must use the same model you used when storing embeddings!!!!!!!!
 def _get_query_embedding(question: str) -> list:
-    token = os.getenv('HF_TOKEN', '')
-    # build the HTTP headers to send with the Huggingface API request
-    # if no token, empty headers, request still works but treated as anonymous with lower rate limits
-    if token:
-        headers = {'Authorization': f'Bearer {token}'}
+    client = InferenceClient(token=os.getenv('HF_TOKEN', ''))
+    result = client.feature_extraction(question, model='sentence-transformers/all-MiniLM-L6-v2')
+    # no need to raise error bc hf inferenceclient handles raising exceptions before returning result (where before i had to raise it manually)
+    # InferenceClient returns a numpy array. convert to plain list for Pinecone
+    # check whether the result object has method called tolist()
+    if hasattr(result, 'tolist'):
+        return result.tolist() 
     else:
-        headers = {}
-    # IMPORTANT: you must use the same model you used when storing embeddings!!!!!!!!
-    response = httpx.post(
-        'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2',
-        headers=headers,
-        json={'inputs': question},
-        timeout=30.0
-    )
-    # check if http request to huggingface's response was an error, if so, raise an exception with the error details
-    response.raise_for_status()
-    # json to dict
-    data = response.json()
-
-    # Huggingface feature-extraction returns [[float,...]] 2d list for sentence-transformer models, we have to remove the outer [] wrapper
-    if isinstance(data[0], list):
-        return data[0]  #grab the inner list, dropping the outer [] wrapper
-    else:
-        return data
+        return list(result)
 
 # Initialize Groq LLM for generating responses for user
 llm = ChatGroq(
