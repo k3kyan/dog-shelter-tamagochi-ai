@@ -1,6 +1,6 @@
 # referenced my website project bc i've done this backend fastapi setup before
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from contextlib import asynccontextmanager
 import os, boto3
@@ -43,18 +43,18 @@ async def lifespan(app: FastAPI):
 # when the app starts serving (Lambda cold start), FastAPI calls lifespan(app), runs the startup code, hits yield, then starts accepting requests
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:8000",
-    # insert cloudfront url here later
-]
-app.add_middleware(
-    CORSMiddleware, 
-    # allow_origins=origins, #if i only wanted to allow specific urls to access
-    allow_origins=["*"],
-    allow_methods=["*"], 
-    allow_headers=["*"]
-)
-
+# only lambda handles this now
+# origins = [
+#     "http://localhost:8000",
+#     # insert cloudfront url here later
+# ]
+# app.add_middleware(
+#     CORSMiddleware, 
+#     # allow_origins=origins, #if i only wanted to allow specific urls to access
+#     allow_origins=["*"],
+#     allow_methods=["*"], 
+#     allow_headers=["*"]
+# )
 
 app.include_router(breed_routes.breed_router)
 app.include_router(player_routes.player_router)
