@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
 
 # creates the app, registers lifespan
 # when the app starts serving (Lambda cold start), FastAPI calls lifespan(app), runs the startup code, hits yield, then starts accepting requests
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, redirect_slashes=False)
 
 # only lambda handles this now
 # origins = [
