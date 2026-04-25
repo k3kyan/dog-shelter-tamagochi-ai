@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-export const getBreeds = () => axios.get(`${BASE_URL}/breeds/`)
+export const getBreeds = () => axios.get(`${BASE_URL}/breeds`)
 export const getBreed = (b) => axios.get(`${BASE_URL}/breeds/${encodeURIComponent(b)}`)
 
 export const matchBreeds = (profile) => axios.post(`${BASE_URL}/player/match`, profile)
@@ -12,7 +12,7 @@ export const getPlayerState = (player_name) =>
   axios.get(`${BASE_URL}/player/${encodeURIComponent(player_name)}`)
 
 export const performCare = (player_name, action) =>
-  axios.post(`${BASE_URL}/care/`, { player_name, action })
+  axios.post(`${BASE_URL}/care`, { player_name, action })
 export const tick = (player_name) =>
   axios.post(`${BASE_URL}/care/tick`, { player_name })
 

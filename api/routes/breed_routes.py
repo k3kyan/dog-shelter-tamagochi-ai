@@ -9,7 +9,7 @@ breed_router = APIRouter(
 )
 
 # get list of breeds with shelter stats for the adoption screen
-@breed_router.get("/")
+@breed_router.get("")
 def get_breeds():
     df = get_breed_df()[['breed', 'avg_days_in_shelter']].copy()
     df['breed'] = df['breed'].str.title()

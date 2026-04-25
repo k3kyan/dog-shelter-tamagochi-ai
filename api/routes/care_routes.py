@@ -16,7 +16,7 @@ care_router = APIRouter(
 # used for updating/calculating trust
 # payload incoming request data must be passing in json in format of CareRequestSchema
 #  backend fetches + updates game state itself
-@care_router.post('/')
+@care_router.post('')
 def perform_care(req: CareRequestSchema):
     player = get_player(req.player_name)
     if not player:
