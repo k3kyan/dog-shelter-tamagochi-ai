@@ -90,8 +90,8 @@ export default function AdopterProfile({ onComplete, onResume }) {
 
   return (
     <div className="adopter-profile">
-      <h1>Dog Shelter</h1>
-      <p className="subtitle">Find your perfect rescue match</p>
+      <h1>Kelly Y's Dog Adoption Simulator</h1>
+      <p className="subtitle">Find your perfect rescue match, practice raising them, and chat!</p>
 
       <div className="name-section">
         <label className="name-label">What would you like to be called?</label>

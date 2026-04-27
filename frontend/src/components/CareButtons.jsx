@@ -4,7 +4,6 @@ import { performCare } from '../api/client'
 const ACTIONS = [
   { action: 'feed',  label: 'Feed',  icon: '🍖' },
   { action: 'walk',  label: 'Walk',  icon: '🦮' },
-  { action: 'groom', label: 'Groom', icon: '✂️' },
   { action: 'play',  label: 'Play',  icon: '🎾' },
   { action: 'rest',  label: 'Rest',  icon: '💤' },
 ]
