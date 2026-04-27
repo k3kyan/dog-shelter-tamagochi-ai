@@ -73,7 +73,7 @@ def retrieve_and_answer(question: str, breed: str):
     # 1. embed player's question
     # IMPORTANT: convert query -> embedding (that actually makes a lot of sense!! how else are we supposed to map and compare vectors)
     index = _get_pinecone_index()
-    embedding = _get_query_embedding(question)
+    embedding = _get_query_embedding(f"{breed}: {question}")
 
     # 2. find top 3 most similar chunks in ChromaDB
     results = index.query(
