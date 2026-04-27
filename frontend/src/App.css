@@ -634,6 +634,81 @@ h1 {
   text-decoration: underline;
 }
 
+/* === BREED INFO === */
+.breed-info {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breed-info-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+  text-align: center;
+}
+
+.breed-info-text {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.breed-info-text strong {
+  color: var(--text-h);
+}
+
+.breed-traits {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 4px;
+}
+
+.breed-trait-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breed-trait-label {
+  width: 150px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.breed-trait-track {
+  flex: 1;
+  max-width: 130px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.breed-trait-fill {
+  height: 100%;
+  background: #a78bfa;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.breed-trait-value {
+  width: 40px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+
 /* === TOASTS === */
 .toasts {
   position: fixed;
