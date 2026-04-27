@@ -24,6 +24,8 @@ export default function RescueScreen({ initialState }) {
   const [toasts, setToasts] = useState([])
   const prevTrustRef = useRef(initialState.trust)
   const chatBubbleTimer = useRef(null)
+  const gameStateRef = useRef(gameState)
+  useEffect(() => { gameStateRef.current = gameState }, [gameState])
 
   const addToast = (message) => {
     const id = Date.now()
@@ -40,10 +42,13 @@ export default function RescueScreen({ initialState }) {
   }
 
   // Tick interval — backend calculates drain, no local stat math
+  // Stops firing once hunger, happiness, and energy are all bottomed out
   useEffect(() => {
     const interval = setInterval(async () => {
+      const s = gameStateRef.current
+      if (s.hunger >= 100 && s.happiness <= 0 && s.energy <= 0) return
       try {
-        const res = await tick(gameState.player_name)
+        const res = await tick(s.player_name)
         const data = res.data
         setGameState(data)
         checkTrustMilestones(data.trust, data)
