@@ -169,3 +169,8 @@ npm run dev
 - The Lambda function downloads `breed_profiles.parquet` from S3 on cold start, making breed data available without a separate database
 - Originally used ChromaDB + local sentence-transformers for the vector store, but both were too large for Lambda's deployment package limit and caused 403 errors with cold start and 10 minute CodeBuilds, so --> migrated to Pinecone + HuggingFace Inference API to resolve cold start failures by offloading these responsibilities to Pinecone and HF
 - Lazy singleton pattern used for the Pinecone client so it initializes on first request (after Lambda startup), not at import time (because previously I had ChromaDB lazy singleton in attempt to help long cold start, but I switched to Pinecone and just kept a similar implementation)
+
+## Datasets Used
+- https://www.kaggle.com/datasets/mexwell/dog-breeds-dogtime-dataset
+- https://www.kaggle.com/datasets/mexwell/dog-breeds-dataset
+- https://www.kaggle.com/datasets/aaronschlegel/austin-animal-center-shelter-intakes-and-outcomes
