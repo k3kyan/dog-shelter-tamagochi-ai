@@ -42,11 +42,11 @@ export default function RescueScreen({ initialState }) {
   }
 
   // Tick interval — backend calculates drain, no local stat math
-  // Stops firing once hunger, happiness, and energy are all bottomed out
+  // Stops firing once hunger, happiness, energy, and health are all bottomed out
   useEffect(() => {
     const interval = setInterval(async () => {
       const s = gameStateRef.current
-      if (s.hunger >= 100 && s.happiness <= 0 && s.energy <= 0) return
+      if (s.hunger >= 100 && s.happiness <= 0 && s.energy <= 0 && s.health <= 0) return
       try {
         const res = await tick(s.player_name)
         const data = res.data
