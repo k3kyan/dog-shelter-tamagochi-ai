@@ -6,6 +6,7 @@ import StatBars from './StatBars'
 import CareButtons from './CareButtons'
 import ChatBox from './ChatBox'
 import CareGuide from './CareGuide'
+import BreedInfo from './BreedInfo'
 
 const TICK_INTERVAL = 30000
 
@@ -126,6 +127,8 @@ export default function RescueScreen({ initialState }) {
           />
         </div>
       </div>
+
+      <BreedInfo gameState={gameState} />
 
     </div>
   )
