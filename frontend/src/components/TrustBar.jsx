@@ -1,16 +1,11 @@
-export default function TrustBar({ trust, trustStage, breed, personalityType }) {
+export default function TrustBar({ trust, trustStage, breed }) {
   const stage = trustStage?.stage || 'withdrawn'
-  const nameRevealed = trustStage?.name_revealed
-  const personalityRevealed = trustStage?.personality_revealed
-
-  const displayBreed = nameRevealed ? breed : '???'
-  const displayPersonality = personalityRevealed ? personalityType : null
 
   const labels = {
-    withdrawn: `??? is getting used to you...`,
-    cautious:  `${displayBreed} is starting to trust you`,
-    warming:   `${displayBreed} is opening up${displayPersonality ? ` — ${displayPersonality} emerging` : ''}`,
-    thriving:  `${displayBreed}${displayPersonality ? ` — ${displayPersonality}` : ''} — fully trusting you`,
+    withdrawn: `${breed} is getting used to you...`,
+    cautious:  `${breed} is starting to trust you`,
+    warming:   `${breed} is opening up`,
+    thriving:  `${breed} now fully trusts you`,
   }
   const label = labels[stage] || `Getting to know each other...`
 

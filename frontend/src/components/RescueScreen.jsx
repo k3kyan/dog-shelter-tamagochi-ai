@@ -33,8 +33,8 @@ export default function RescueScreen({ initialState }) {
   const checkTrustMilestones = (newTrust, state) => {
     const prev = prevTrustRef.current
     if (prev < 30 && newTrust >= 30) addToast('They peeked at you')
-    if (prev < 60 && newTrust >= 60) addToast(`${state.personality_type} revealed!`)
-    if (prev < 85 && newTrust >= 85) addToast(`${state.breed} fully trusts you :D`)
+    if (prev < 60 && newTrust >= 60) addToast(`Your dog seems to like you now!`)
+    if (prev < 85 && newTrust >= 85) addToast(`Your ${state.breed} fully trusts you :D`)
     prevTrustRef.current = newTrust
   }
 
@@ -96,7 +96,6 @@ export default function RescueScreen({ initialState }) {
         trust={gameState.trust}
         trustStage={trustStage}
         breed={gameState.breed}
-        personalityType={gameState.personality_type}
       />
 
       <div className="rescue-main">
@@ -109,7 +108,7 @@ export default function RescueScreen({ initialState }) {
           />
           <CareGuide
             playerName={gameState.player_name}
-            breed={trustStage.name_revealed ? gameState.breed : '???'}
+            breed={gameState.breed}
           />
         </div>
 
