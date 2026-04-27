@@ -1,6 +1,6 @@
 function TraitRow({ label, value, max = 1 }) {
   const pct = Math.round((value / max) * 100)
-  const displayValue = max === 1 ? `${Math.round(pct)}%` : `${Math.round(value)} / ${max}`
+  const displayValue = `${Math.round(pct)}%`
   return (
     <div className="breed-trait-row">
       <span className="breed-trait-label">{label}</span>
