@@ -77,9 +77,18 @@ def tick(req: TickRequestSchema):
         'happiness': max(0.0, player.happiness - happiness_drain),
     }
 
+    # health drains when starving or very unhappy, recovers when well cared for
+    starving   = updates['hunger'] >= 80
+    miserable  = updates['happiness'] <= 20
+    thriving   = updates['hunger'] < 40 and updates['happiness'] > 60 and updates['energy'] > 30
+    if starving or miserable:
+        updates['health'] = max(0.0, player.health - 2.0)
+    elif thriving:
+        updates['health'] = min(100.0, player.health + 1.0)
+
     # trust penalty if stats are critically low at withdrawn stage
     if get_trust_stage(player.trust)['stage'] == 'withdrawn':
-        if any(updates[s] < 20 for s in updates):
+        if any(updates[s] < 20 for s in ['energy', 'happiness']):
             updates['trust'] = max(5.0, player.trust - 1.0)
 
     updated = update_player(req.player_name, PlayerProfileUpdateSchema(**updates))
